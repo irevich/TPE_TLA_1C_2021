@@ -5,35 +5,29 @@
     #include <string.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    #include "node.h"
+    #include "translator.h"
 
     int yylex();
 
-    void yyerror(char const * s);
+    void yyerror(node_list ** node_list_param, char const * s);
 
-
-    enum data_type{
-        INT_TYPE = 0,
-        STRING_TYPE = 1,
-        CIRCLE_TYPE = 2,
-        TRIANGLE_TYPE = 3,
-        RECTANGLE_TYPE = 4,
-        EMPTY = 5,
-    };
-
-    typedef struct variable_node{
-        enum data_type type;
+    typedef struct variable_list_node{
+        data_type type;
         char * name;
-        struct variable_node * next; 
-    }variable_node;
+        struct variable_list_node * next; 
+    }variable_list_node;
 
-    variable_node * variable_header;
-    variable_node * current_variable_node;
+    variable_list_node * variable_header;
+    variable_list_node * current_variable_node;
 
-    void createVariable(enum data_type type, char * name);
+    bool check_variable(char * name);
 
-    bool checkVariable(char * name);
+    void create_variable(data_type type, char * name);
 
-    void freeVariables();
+    variable_list_node * find_variable(char * name);
+
+    void free_variables();
     
 %}
 
@@ -42,7 +36,10 @@
 //Tokens
 
 %union{
-    char * string;
+    char string[500];
+    int num;
+    struct node * node;
+    struct node_list * node_list;
 }
 
 //Program delimeter tokens
@@ -60,14 +57,14 @@
 //While-block tokens
 %token WHILE;
 
-//Instructuion delimeter token
+//Instruction delimeter token
 %token SEMICOLON;
 
 //Aritmethical tokens
-%token PLUS;
-%token MINUS;
-%token PRODUCT;
-%token DIVISION;
+%token<aritmetic_op_type> PLUS;
+%token<aritmetic_op_type> MINUS;
+%token<aritmetic_op_type> PRODUCT;
+%token<aritmetic_op_type> DIVISION;
 
 //Assign token
 %token ASSIGN;
@@ -132,94 +129,87 @@
 %token<string> IDENTIFIER;
 
 //Num token
-%token<string> NUM;
+%token<num> NUM;
 
 
 //Non-Terminals
-%type<string> param;
-%type<string> exp;
-%type<string> term;
-%type<string> factor;
+%type<node> code;
+%type<node> instruction;
+%type<node> declaration;
+%type<node> factor;
+%type<node> assignation;
+%type<node> exp;
+%type<node> term;
+%type<node> param;
+%type<node_list> program; 
+
 
 //Starting rule
-%start program 
+%start program
+
+%parse-param{struct node_list ** program_list}
 
 
 //Productions
 %%
 
-    program     :   START code END      {;}
+    program     :   START code END      { *program_list = (node_list *)$2; $$ = *program_list;}
                 ;           
  
-    code        :   instruction code        {;}
-                |             {;}
-                ;
+    code        :   instruction code        { $$ = (node *) add_node_list($2, $1);}
+                |   instruction             {$$ = (node *) create_node_list($1);}
+                ;       
 
     instruction :   declaration SEMICOLON       {;}
                 |   assignation SEMICOLON       {;}
-                |   PRINT OPEN_PARENTHESES QM param QM CLOSE_PARENTHESES SEMICOLON     {printf("printf(\"%%d\\n\",%s);\n",$4);}
+                |   PRINT OPEN_PARENTHESES QM param QM CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($4);}
                 ;
 
-    declaration :   INT IDENTIFIER ASSIGN param  {
-                    
-                    if(checkVariable($2)){
+    declaration :   INT IDENTIFIER ASSIGN param  {                  
+                    if(check_variable($2)){
                         fprintf(stderr, "Error. Variable %s already declared\n", $2);
-                        freeVariables();
-                        free(yylval.string);
+                        free_variables();
                         exit(-1);
-                        
                     }
-
-                    createVariable(INT_TYPE, $2);
-
-                    printf("int %s = %s;\n",$2,$4);
-
-
+                    create_variable(INT_TYPE, $2);
+                    $$ = (node*) create_declaration_node($2, INT_TYPE, $4);                  
                     }
                 ;
 
     assignation :   IDENTIFIER ASSIGN param     {
 
-                    if(!checkVariable($1)){
+                    if(!check_variable($1)){
                         fprintf(stderr, "Error. Variable %s not declared\n", $1);
-                        freeVariables();
-                        free(yylval.string);
+                        free_variables();
                         exit(-1);
                     }
-                    
-                    printf("%s = %s;\n",$1,$3);
-
-                    
+                    $$ = (node *) create_assignation_node($1, $3);
                     }
                 ;
 
     param       :   exp         {$$ = $1;}
                 ;
 
-    exp         :   exp PLUS term       {
-                                            $$ = malloc(strlen($1)+strlen($3)+4);
-                                            sprintf($$, "%s + %s", $1, $3);
-                                        }
-                |   exp MINUS term      {
-                                            $$ = malloc(strlen($1)+strlen($3)+4);
-                                            sprintf($$, "%s - %s", $1, $3);
-                                        }
+    exp         :   exp PLUS term       {   $$ = (node*) create_exp_node("+",$1,$3);  }
+                |   exp MINUS term      {   $$ = (node*) create_exp_node("-",$1,$3);  }
                 |   term                {$$ = $1;}
                 ;
 
-    term        :   term PRODUCT factor     {
-                                            $$ = malloc(strlen($1)+strlen($3)+4);
-                                            sprintf($$, "%s * %s", $1, $3);
-                                            }
-                |   term DIVISION factor    {
-                                            $$ = malloc(strlen($1)+strlen($3)+4);
-                                            sprintf($$, "%s / %s", $1, $3);
-                                            }
+    term        :   term PRODUCT factor     {   $$ = (node*) create_exp_node("*",$1,$3);  }
+                |   term DIVISION factor    {   $$ = (node*) create_exp_node("/",$1,$3);  }
                 |   factor                  {$$ = $1;}
                 ;
 
-    factor      :   IDENTIFIER      {$$ = $1;}
-                |   NUM             {$$ = $1;}
+    factor      :   IDENTIFIER      {
+                                        variable_list_node * variable = find_variable($1);
+                                        if(variable == NULL){
+                                            fprintf(stderr, "Error. Variable %s not declared\n", $1);
+                                            free_variables();
+                                            exit(-1);
+                                        }
+                                        $$ = (node*)create_variable_node(variable->type, $1);
+                                    }
+                |   NUM             {$$ = (node*)create_constant_int_node($1);}
                 ; 
 
 %%
@@ -230,12 +220,12 @@ int yywrap(){
     return 1;
 }
 
-void yyerror(char const * s){
+void yyerror(node_list ** node_list_param, char const * s){
     fprintf(stderr, "%s\n", s);
 }
 
-void createVariable(enum data_type type, char * name){
-    current_variable_node->next = malloc(sizeof(variable_node));
+void create_variable(data_type type, char * name){
+    current_variable_node->next = malloc(sizeof(variable_list_node));
     current_variable_node->next->name = malloc(strlen(name) + 1);
     strcpy(current_variable_node->next->name, name);
     current_variable_node->next->type = type;
@@ -243,8 +233,8 @@ void createVariable(enum data_type type, char * name){
     current_variable_node = current_variable_node->next;
 }
 
-bool checkVariable(char * name){
-    variable_node * aux_node = variable_header->next;
+bool check_variable(char * name){
+    variable_list_node * aux_node = variable_header->next;
     bool found = false;
 
     while(aux_node != NULL){
@@ -256,13 +246,30 @@ bool checkVariable(char * name){
         aux_node = aux_node->next;
     }
 
-    return found;
-
+    return found; 
 }
 
-void freeVariables(){
+variable_list_node * find_variable(char * name){
+    variable_list_node * aux_node = variable_header->next;
+    bool found = false;
+
+    while(aux_node != NULL){
+
+        if(strcmp(aux_node->name, name) == 0){
+            found = true;
+            break;
+        }
+        aux_node = aux_node->next;
+    }
+
+    if (!found)
+        aux_node = NULL;
+    return aux_node; 
+}
+
+void free_variables(){
     current_variable_node = variable_header->next;
-    variable_node * aux_node;
+    variable_list_node * aux_node;
 
     while(current_variable_node != NULL){
         aux_node = current_variable_node->next;
@@ -275,18 +282,23 @@ void freeVariables(){
 }
 
 int main(int argc, char * argv[]){
-    variable_header = malloc(sizeof(variable_node));
+    variable_header = malloc(sizeof(variable_list_node));
     variable_header->name = NULL;
     variable_header->type = EMPTY;
     variable_header->next = NULL;
     current_variable_node = variable_header;
+    struct node_list * program_list;
+    yyparse(&program_list);
+    //printf("Program list pointer : %p\n", program_list);
     printf("#include <stdio.h>\n");
     printf("int main(int argc, char * argv[]) { \n");
-    yyparse();
+    char * program = translate_to_c(program_list);
+    printf("%s\n", program);
     printf("return 0;\n");
     printf("}\n");
-    freeVariables();
-    free(yylval.string);
+    free_variables();
+    free_node((node *) program_list);
+    free(program);
     return 0;
 }
 

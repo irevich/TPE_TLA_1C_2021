@@ -4,6 +4,7 @@
     #include "y.tab.h"
     #include <string.h>
     #include <stdlib.h>
+    #include <stdio.h>
 
 %}
 
@@ -63,11 +64,11 @@ digit  [0-9]
 "get_rectangle_area"            return AREA_R;
 "get_triangle_area"             return AREA_T;
 \"                              return QM;
-{letter}({letter}|{digit}|[_])* {yylval.string = realloc(yylval.string, strlen(yytext) + 1); strcpy(yylval.string, yytext); return IDENTIFIER;}
-{digit}+                        {yylval.string = strdup(yytext); return NUM;}
+{letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
+{digit}+                        {yylval.num = atoi(yytext); return NUM;}
 
 
-[ \t\r]+		;		//Ignore white space
+[ \t\r\n]+		;		//Ignore white space
 
 %%
 
