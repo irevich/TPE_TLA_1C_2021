@@ -2,7 +2,9 @@
     //C declarations
 
     #include "y.tab.h"
-    #include "string.h"
+    #include <string.h>
+    #include <stdlib.h>
+
 %}
 
  //Definitions Section
@@ -61,7 +63,7 @@ digit  [0-9]
 "get_rectangle_area"            return AREA_R;
 "get_triangle_area"             return AREA_T;
 \"                              return QM;
-{letter}({letter}|{digit}|[_])* {yylval.string = strdup(yytext); return IDENTIFIER;}
+{letter}({letter}|{digit}|[_])* {yylval.string = realloc(yylval.string, strlen(yytext) + 1); strcpy(yylval.string, yytext); return IDENTIFIER;}
 {digit}+                        {yylval.string = strdup(yytext); return NUM;}
 
 

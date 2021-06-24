@@ -11,7 +11,7 @@ yacc : grammar.y
 	yacc -d grammar.y
 
 compile : lex.yy.c y.tab.c 
-	gcc lex.yy.c y.tab.c -o compiler
+	gcc -Wall lex.yy.c y.tab.c -o compiler
 
 clean :	compiler lex.yy.c y.tab.c y.tab.h
 	rm -rf compiler lex.yy.c y.tab.c y.tab.h
