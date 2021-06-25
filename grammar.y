@@ -152,7 +152,8 @@
 %type<node> comp_term;
 %type<node> comp_factor;
 %type<string> or;
-%type<data> var_type; 
+%type<data> var_type;
+%type<node> otherwise_block;  
 
 
 
@@ -179,9 +180,12 @@
                 |   PRINT OPEN_PARENTHESES param CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($3);}
                 ;
 
-    if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES                                            {$$ = (node*) create_if_node($3, $6);}
-                |   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES OTHERWISE OPEN_BRACES code CLOSE_BRACES    {$$ = (node*) create_if_otherwise_node($3, $6, $10);}
+    if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES otherwise_block    {if($8 == NULL){$$ = (node*) create_if_node($3, $6);} else {$$ = (node*) create_if_otherwise_node($3, $6, $8);}}
                 ;
+
+    otherwise_block : OTHERWISE OPEN_BRACES code CLOSE_BRACES {$$ = $3;}
+                    |                                        {$$ = NULL;}
+                    ;
 
     while_block :   WHILE OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES         {$$ = (node*) create_while_node($3, $6);}
 
