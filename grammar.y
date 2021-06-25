@@ -61,32 +61,32 @@
 %token SEMICOLON;
 
 //Aritmethical tokens
-%token<aritmetic_op_type> PLUS;
-%token<aritmetic_op_type> MINUS;
-%token<aritmetic_op_type> PRODUCT;
-%token<aritmetic_op_type> DIVISION;
+%token<string> PLUS;
+%token<string> MINUS;
+%token<string> PRODUCT;
+%token<string> DIVISION;
 
 //Assign token
 %token ASSIGN;
 
 //Relational tokens
-%token GT;
-%token LT;
-%token GE;
-%token LE;
+%token<string> GT;
+%token<string> LT;
+%token<string> GE;
+%token<string> LE;
+%token<string> EQ;
+%token<string> NEQ;
 
 //Logical tokens
-%token AND;
-%token OR;
-%token EQ;
-%token NEQ;
+%token<string> AND;
+%token<string> OR;
 
 //Datatypes tokens
-%token INT; 
-%token STRING;
-%token CIRCLE;
-%token RECTANGLE;
-%token TRIANGLE;
+%token<data_type> INT; 
+%token<data_type> STRING;
+%token<data_type> CIRCLE;
+%token<data_type> RECTANGLE;
+%token<data_type> TRIANGLE;
 
 //String delimeter token
 %token QM;
@@ -142,6 +142,13 @@
 %type<node> term;
 %type<node> param;
 %type<node_list> program; 
+%type<node> if_block;
+//%type<node> while_block;
+%type<node> comp;
+%type<node> comp_term;
+%type<node> comp_factor;
+%type<string> or;
+
 
 
 //Starting rule
@@ -158,13 +165,38 @@
  
     code        :   instruction code        { $$ = (node *) add_node_list($2, $1);}
                 |   instruction             {$$ = (node *) create_node_list($1);}
-                ;       
+                ;    
 
     instruction :   declaration SEMICOLON       {;}
                 |   assignation SEMICOLON       {;}
+                |   if_block                    {;}
                 |   PRINT OPEN_PARENTHESES QM param QM CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($4);}
                 ;
 
+    if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES                                            {$$ = (node*) create_if_node($3, $6);}
+                |   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES OTHERWISE OPEN_BRACES code CLOSE_BRACES    {$$ = (node*) create_if_otherwise_node($3, $6, $10);}
+                ;
+
+    comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3);  }
+                |   comp_term               {   $$ = $1;    }
+                ;
+
+    comp_term   :   comp_term AND comp_factor    {   $$ = (node*) create_logical_comp_node("&&",$1, $3);  }
+                |   comp_factor                  {   $$ = $1;   }
+                ;
+
+    comp_factor :   exp or exp              {   $$ = (node*) create_relational_comp_node($2,$1,$3);  }
+                ; 
+    
+    or          :   LT          { strcpy($$, "<");}
+                |   LE          { strcpy($$, "<=");}
+                |   GT          { strcpy($$, ">");}
+                |   GE          { strcpy($$, ">=");}
+                |   EQ          { strcpy($$, "==");}
+                |   NEQ         { strcpy($$, "!=");}
+                ;
+
+    
     declaration :   INT IDENTIFIER ASSIGN param  {                  
                     if(check_variable($2)){
                         fprintf(stderr, "Error. Variable %s already declared\n", $2);

@@ -26,4 +26,14 @@ char * translate_print_node(print_node * node);
 
 char * translate_node_list(node_list * list_node);
 
+char * translate_rel_comp_node (rel_comp_node * node);
+
+char * translate_log_comp_node (log_comp_node * node);
+
+char * translate_if_node (if_node * node);
+
+char * translate_if_otherwise_node (if_otherwise_node * node);
+
+
+
 #endif

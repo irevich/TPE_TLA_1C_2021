@@ -16,7 +16,7 @@ void free_variable_node(variable_node * node){
 }
 
 constant_int_node * create_constant_int_node( int value){
-    
+    //printf("Creando el node constant\n");
     constant_int_node * new_node = malloc(sizeof(constant_int_node));
     new_node->type = CONSTANT_INT;
     new_node->value = value;
@@ -30,6 +30,7 @@ void free_constant_int_node (constant_int_node * node){
 
 
 declaration_node * create_declaration_node(char * name, data_type type, node * assigned_node){
+    //printf("Creando el node declaration\n");
     declaration_node * new_node = malloc(sizeof(declaration_node));
     new_node->type = DECLARATION;
     new_node->declaration_type = type;
@@ -79,6 +80,7 @@ void free_exp_node(exp_node * node){
 }
 
 print_node * create_print_node(node * content_node){
+    //printf("Creando el node print\n");
     print_node * new_node = malloc(sizeof(print_node));
     new_node->type = PRINT_NODE;
     new_node->content_node = content_node;
@@ -91,6 +93,7 @@ void free_print_node(print_node * node){
 }
 
 node_list * create_node_list(node * node){
+    //printf("Creando node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->next = NULL;
     new_node->node = node;
@@ -99,6 +102,7 @@ node_list * create_node_list(node * node){
 }
 
 node_list * add_node_list(node * node_header, node * node){
+    //printf("Haciendo add_node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->node = node;
     new_node->type = NODE_LIST;
@@ -112,6 +116,75 @@ void free_node_list(node_list * node_to_free){
         free_node((node *) (node_to_free->next));
     free(node_to_free);
 }
+
+rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node){
+    //printf("Creando el node relational comp\n");
+    rel_comp_node * new_node = malloc(sizeof(rel_comp_node));
+    new_node->type = REL_COMP;
+    new_node->op = malloc(strlen(op) + 1);
+    strcpy(new_node->op, op);
+    new_node->left_node = left_node;
+    new_node->right_node = right_node;
+    return new_node;
+}
+
+void free_relational_comp_node(rel_comp_node * node){
+    free_node(node->left_node);
+    free_node(node->right_node);
+    free(node->op);
+    free(node);
+
+}
+
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node){
+    //printf("Creando el node logical comp\n");
+    log_comp_node * new_node = malloc(sizeof(log_comp_node));
+    new_node->type = LOG_COMP;
+    new_node->op = malloc(strlen(op) + 1);
+    strcpy(new_node->op, op);
+    new_node->left_node = left_node;
+    new_node->right_node = right_node;
+    return new_node;
+}
+
+void free_logical_comp_node(log_comp_node * node){
+    free_node(node->left_node);
+    free_node(node->right_node);
+    free(node->op);
+    free(node);
+}
+
+if_node * create_if_node(node * cond, node * code){
+    //printf("Creando el node if\n");
+    if_node * new_node = malloc(sizeof(if_node));
+    new_node->type = IF_NODE;
+    new_node->cond = cond;
+    new_node->code = code;
+    return new_node;
+}
+
+void free_if_node(if_node * node){
+    free_node(node->cond);
+    free_node(node->code);
+    free(node);
+}
+
+if_otherwise_node * create_if_otherwise_node(node * cond, node * left, node * right){
+    if_otherwise_node * new_node = malloc(sizeof(if_otherwise_node));
+    new_node->type = IF_OTHERWISE;
+    new_node->cond = cond;
+    new_node->left_node = left;
+    new_node->right_node = right;
+    return new_node;
+}
+
+void free_if_otherwise_node(if_otherwise_node * node){
+    free_node(node->cond);
+    free_node(node->left_node);
+    free_node(node->right_node);
+    free(node);
+}
+
 
 void free_node(node * node){
     switch(node->type){
@@ -142,5 +215,21 @@ void free_node(node * node){
         case PRINT_NODE:
             free_print_node((print_node *) node);
             break;   
+
+        case REL_COMP:
+            free_relational_comp_node((rel_comp_node *) node);
+            break; 
+
+        case LOG_COMP:
+            free_logical_comp_node((log_comp_node *) node);
+            break;  
+        
+        case IF_NODE:
+            free_if_node((if_node *) node);
+            break;  
+
+        case IF_OTHERWISE:
+            free_if_otherwise_node((if_otherwise_node *) node);
+            break; 
     }
 }

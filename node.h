@@ -13,7 +13,11 @@ typedef enum{
     ASSIGNATION,
     EXP,
     PRINT_NODE,
-    NODE_LIST
+    NODE_LIST,
+    LOG_COMP,
+    REL_COMP,
+    IF_NODE,
+    IF_OTHERWISE,
 }node_type;
 
 typedef enum{
@@ -56,42 +60,68 @@ typedef struct node_list{
     struct node_list * next;
 }node_list;
 
-typedef struct variable_node{   //juani --> Listo
+typedef struct variable_node{ 
     node_type type;
     data_type variable_type;
     char * name;
 }variable_node;
 
-typedef struct constant_int_node{ //Igol ---> Listo
+typedef struct constant_int_node{ 
     node_type type;
     int value;
 }constant_int_node;
 
-typedef struct declaration_node{   //BETO  ---> Listo
+typedef struct declaration_node{ 
     node_type type;
     char * name;
     data_type declaration_type;
     node * assigned_node;
 }declaration_node;
 
-typedef struct assignation_node{  //BETO --> Listo
+typedef struct assignation_node{
     node_type type;
     char * name;
     node * assigned_node;
 }assignation_node; 
 
-typedef struct exp_node{ //Igol ---> Listo
+typedef struct exp_node{ 
     node_type type;
     char * op;
     node * left_node;
     node * right_node;
 }exp_node;
 
-typedef struct print_node{  //juani ---> Listo
+typedef struct print_node{ 
     node_type type;
     node * content_node;   
 }print_node;
 
+typedef struct rel_comp_node{
+    node_type type;
+    char * op;
+    node * left_node;
+    node * right_node;
+}rel_comp_node;
+
+typedef struct log_comp_node{
+    node_type type;
+    char * op;
+    node * left_node;
+    node * right_node; 
+}log_comp_node;
+
+typedef struct if_node{
+    node_type type;
+    node * cond;
+    node * code; 
+}if_node;
+
+typedef struct if_otherwise_node{
+    node_type type;
+    node * cond;
+    node * left_node;
+    node * right_node; 
+}if_otherwise_node;
 
 variable_node * create_variable_node(data_type variable_type, char * name);
 void free_variable_node(variable_node * node);
@@ -109,5 +139,13 @@ node_list * add_node_list(node * node_header, node * node);
 node_list * create_node_list(node * node);
 void free_node_list(node_list * node);
 void free_node(node * node);
+rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node);
+void free_relational_comp_node(rel_comp_node * node);
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node);
+void free_logical_comp_node(log_comp_node * node);
+if_node * create_if_node(node * cond, node * code);
+void free_if_node(if_node * node);
+if_otherwise_node * create_if_otherwise_node(node * cond, node * left, node * right);
+void free_if_otherwise_node(if_otherwise_node * node);
 
 #endif
