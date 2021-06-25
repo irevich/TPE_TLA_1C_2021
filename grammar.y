@@ -1,12 +1,9 @@
 %{
     //Declarations
 
-    #include <stdio.h>
-    #include <string.h>
-    #include <stdlib.h>
-    #include <stdbool.h>
     #include "node.h"
     #include "translator.h"
+    #include "stdbool.h"
 
     int yylex();
 
@@ -27,6 +24,12 @@
 
     variable_list_node * find_variable(char * name);
 
+    bool is_figure (variable_list_node * variable);
+
+    bool check_figure_property (char * name, figure_property_type property_type);
+
+    bool figure_has_property(variable_list_node * variable, figure_property_type property_type);
+
     void free_variables();
     
 %}
@@ -41,6 +44,7 @@
     node * node;
     node_list * node_list;
     data_type data;
+    figure_property_type figure_property_type;
 }
 
 //Program delimeter tokens
@@ -91,13 +95,19 @@
 
 //String delimeter token
 %token QM;
+%token COMA;
 
 //Figure property token
 %token ARROW;
 
 //Rectangle properties tokens
-%token BASE;
-%token HEIGHT;
+%token<figure_property_type> BASE;
+%token<figure_property_type> HEIGHT;
+
+//Figure functions tokens
+
+%token PERIMETER;
+%token AREA;
 
 //Rectangle functions tokens
 %token CREATE_R;
@@ -105,9 +115,9 @@
 %token AREA_R;
 
 //Triangle properties tokens
-%token SIDE_1;
-%token SIDE_2;
-%token SIDE_3;
+%token<figure_property_type>SIDE_1;
+%token<figure_property_type>SIDE_2;
+%token<figure_property_type>SIDE_3;
 
 //Triangle functions tokens
 %token CREATE_T;
@@ -115,7 +125,7 @@
 %token AREA_T;
 
 //Circle properties tokens
-%token RADIUS;
+%token<figure_property_type> RADIUS;
 
 //Circle functions tokens
 %token CREATE_C;
@@ -153,7 +163,10 @@
 %type<node> comp_factor;
 %type<string> or;
 %type<data> var_type;
-%type<node> otherwise_block;  
+%type<node> otherwise_block;
+%type<node> figure_property;
+%type<figure_property_type> property;
+%type<node> func;  
 
 
 
@@ -169,8 +182,8 @@
     program     :   START code END      { *program_list = (node_list *)$2; $$ = *program_list;}
                 ;           
  
-    code        :   instruction code        { $$ = (node *) add_node_list($2, $1);}
-                |   instruction             {$$ = (node *) create_node_list($1);}
+    code        :   instruction code        { $$ = (node *) add_node_list($2, $1, NODE_LIST);}
+                |   instruction             {$$ = (node *) create_node_list($1, NODE_LIST);}
                 ;    
 
     instruction :   declaration SEMICOLON       {;}
@@ -228,6 +241,9 @@
 
     var_type   :   INT     { $$ = INT_TYPE;}
                |   STRING  { $$ = STRING_TYPE;}
+               |   CIRCLE  { $$ = CIRCLE_TYPE;}
+               |   RECTANGLE { $$ = RECTANGLE_TYPE;}
+               |   TRIANGLE  { $$ = TRIANGLE_TYPE;}
                ;
 
     assignation :   IDENTIFIER ASSIGN param     {
@@ -244,6 +260,7 @@
     param       :   exp         {$$ = $1;}
                 |   TEXT        {$$ = (node *) create_constant_string_node($1);}
                 ;
+    
 
     exp         :   exp PLUS term       {   $$ = (node*) create_exp_node("+",$1,$3);  }
                 |   exp MINUS term      {   $$ = (node*) create_exp_node("-",$1,$3);  }
@@ -265,7 +282,52 @@
                                         $$ = (node*)create_variable_node(variable->type, $1);
                                     }
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
-                ; 
+                |   figure_property {$$ =  $1;}
+                |   func            {;}
+                ;
+
+    func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
+                                                                                                node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
+                                                                                                $$ = (node *) create_function_node(CIRCLE_TYPE, "create_circle", (node *) param_list );
+                                                                                            }
+            |   CREATE_R OPEN_PARENTHESES param COMA param CLOSE_PARENTHESES                {
+                                                                                                node_list * param_list = create_node_list($5, PARAM_NODE_LIST);
+                                                                                                param_list = add_node_list((node*)param_list, $3, PARAM_NODE_LIST);
+                                                                                                $$ = (node *) create_function_node(RECTANGLE_TYPE, "create_rectangle", (node *) param_list );
+                                                                                            }
+            |   CREATE_T OPEN_PARENTHESES param COMA param COMA param CLOSE_PARENTHESES     {
+                                                                                                node_list * param_list = create_node_list($7, PARAM_NODE_LIST);
+                                                                                                param_list = add_node_list((node*)param_list, $5, PARAM_NODE_LIST);
+                                                                                                param_list = add_node_list((node*)param_list, $3, PARAM_NODE_LIST);
+                                                                                                $$ = (node *) create_function_node(TRIANGLE_TYPE, "create_triangle", (node *) param_list);}
+            |   PERIMETER OPEN_PARENTHESES factor CLOSE_PARENTHESES                         {
+                                                                                                node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
+                                                                                                $$ = (node *) create_function_node(INT_TYPE, "get_perimeter", (node *) param_list );
+                                                                                            }
+            |   AREA OPEN_PARENTHESES factor CLOSE_PARENTHESES                              {
+                                                                                                node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
+                                                                                                $$ = (node *) create_function_node(INT_TYPE, "get_area", (node *) param_list );
+                                                                                            }
+            ;
+
+    figure_property :   IDENTIFIER ARROW property   {
+                                                        if(!check_figure_property($1,$3)){
+                                                            fprintf(stderr, "Error. Variable %s not declared or invalid property\n", $1);
+                                                            free_variables();
+                                                            exit(-1);
+                                                        }
+                                                        $$ = (node*) create_property_node($1, $3);
+                                                            
+                                                    }
+                    ;
+
+    property        :   RADIUS  {$$ = RADIUS_TYPE;}
+                    |   SIDE_1  {$$ = SIDE_1_TYPE;}
+                    |   SIDE_2  {$$ = SIDE_2_TYPE;}
+                    |   SIDE_3  {$$ = SIDE_3_TYPE;}
+                    |   BASE    {$$ = BASE_TYPE;}
+                    |   HEIGHT  {$$ = HEIGHT_TYPE;}
+                    ;
 
 %%
 
@@ -303,6 +365,44 @@ bool check_variable(char * name){
 
     return found; 
 }
+
+bool check_figure_property (char * name, figure_property_type property_type){
+    variable_list_node * variable = find_variable(name);
+    if(variable == NULL)
+        return false;
+    if(!is_figure(variable))
+        return false;
+    return figure_has_property(variable,property_type);
+    
+}
+
+bool is_figure (variable_list_node * variable){
+    switch(variable->type){
+        case CIRCLE_TYPE:
+        case RECTANGLE_TYPE:
+        case TRIANGLE_TYPE:
+            return true;
+        default:
+            return false;
+    }
+    return false;
+}
+
+bool figure_has_property(variable_list_node * variable, figure_property_type property_type){
+    switch(variable->type){
+        case CIRCLE_TYPE:
+            return property_type == RADIUS_TYPE;
+        case RECTANGLE_TYPE:
+            return property_type == BASE_TYPE || property_type == HEIGHT_TYPE;
+        case TRIANGLE_TYPE:
+            return property_type == SIDE_1_TYPE || property_type == SIDE_2_TYPE || property_type == SIDE_3_TYPE;
+        default:
+            return false;
+    }
+    return false;
+}
+
+
 
 variable_list_node * find_variable(char * name){
     variable_list_node * aux_node = variable_header->next;
@@ -346,6 +446,10 @@ int main(int argc, char * argv[]){
     yyparse(&program_list);
     //printf("Program list pointer : %p\n", program_list);
     printf("#include <stdio.h>\n");
+    printf("#include <math.h>\n");
+    printf("#include <stdlib.h>\n");
+    printf("#include <string.h>\n");
+    print_initial_functions();
     printf("int main(int argc, char * argv[]) { \n");
     char * program = translate_to_c(program_list);
     printf("%s\n", program);

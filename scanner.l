@@ -28,6 +28,7 @@ string \"[^\"]*\"
 ")"				                return CLOSE_PARENTHESES;
 "{"				                return OPEN_BRACES;
 "}"				                return CLOSE_BRACES;
+","                             return COMA;
 "="                             return ASSIGN;
 ">"				                return GT;
 ">="			                return GE;
@@ -56,12 +57,8 @@ string \"[^\"]*\"
 "create_circle"                 return CREATE_C;
 "create_rectangle"              return CREATE_R;
 "create_triangle"               return CREATE_T;
-"get_circle_perimeter"          return PERIMETER_C;
-"get_rectangle_perimeter"       return PERIMETER_R;
-"get_triangle_perimeter"        return PERIMETER_T;
-"get_circle_area"               return AREA_C;
-"get_rectangle_area"            return AREA_R;
-"get_triangle_area"             return AREA_T;
+"get_perimeter"                 return PERIMETER;
+"get_area"                      return AREA;
 \"                              return QM;
 {letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
 {string}                       {strcpy(yylval.string, yytext); return TEXT;}

@@ -10,11 +10,30 @@ int get_node_data_type(node * node_param){
             return INT_TYPE;
         case EXP:  
             return INT_TYPE;
+        case PROPERTY_NODE:
+            return ((property_node *)(node_param))->return_type;
+        case FUNCTION_NODE:
+            return ((function_node *)(node_param))->return_type;
         default:    
             return -1;
     }
     return -1;
 
+}
+
+//on this instance, all properties are INT_TYPE, but this could change as new properties are created
+data_type get_property_return_type(figure_property_type type){
+    data_type ret;
+    switch(type){
+        case RADIUS_TYPE:
+        case SIDE_1_TYPE:
+        case SIDE_2_TYPE:
+        case SIDE_3_TYPE:
+        case BASE_TYPE:
+        case HEIGHT_TYPE:
+            ret = INT_TYPE;
+    }
+    return ret;
 }
 
 variable_node * create_variable_node(data_type variable_type, char * name){
@@ -95,6 +114,41 @@ void free_assignation_node(assignation_node * node){
     free(node);
 }
 
+property_node * create_property_node(char * var_name, figure_property_type property_type) {
+    
+    property_node * new_node = malloc(sizeof(property_node));
+    new_node->type = PROPERTY_NODE;
+    new_node->var_name = malloc(strlen(var_name) + 1);
+    strcpy(new_node->var_name,var_name);
+    new_node->property_type = property_type;
+    new_node->return_type = get_property_return_type(property_type);
+
+    return new_node;
+}
+
+void free_property_node(property_node * node) {
+    free(node->var_name);
+    free(node);
+}
+
+function_node * create_function_node(data_type return_type, char * name, node * node_param_header){
+    function_node * new_node = malloc(sizeof(function_node));
+    new_node->type = FUNCTION_NODE;
+    new_node->name = malloc(strlen(name) + 1);
+    strcpy(new_node->name, name);
+    new_node->node_param_list = node_param_header;
+    new_node->return_type = return_type;
+
+    return new_node;
+
+}
+
+void free_function_node(function_node * node){
+    free_node(node->node_param_list);
+    free(node->name);
+    free(node);
+}
+
 exp_node * create_exp_node(char * op, node * left_node, node * right_node){
     exp_node * new_node = malloc(sizeof(exp_node));
     new_node->type = EXP;
@@ -125,20 +179,20 @@ void free_print_node(print_node * node){
     free(node);
 }
 
-node_list * create_node_list(node * node){
+node_list * create_node_list(node * node, node_type type){
     //printf("Creando node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->next = NULL;
     new_node->node = node;
-    new_node->type = NODE_LIST;
+    new_node->type = type;
     return new_node;
 }
 
-node_list * add_node_list(node * node_header, node * node){
+node_list * add_node_list(node * node_header, node * node, node_type type){
     //printf("Haciendo add_node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->node = node;
-    new_node->type = NODE_LIST;
+    new_node->type = type;
     new_node->next = (node_list *) node_header;
     return new_node;
 }
@@ -260,6 +314,7 @@ void free_node(node * node){
             free_exp_node((exp_node *)node);
             break;
 
+        case PARAM_NODE_LIST:
         case NODE_LIST:
             free_node_list((node_list *) node);
             break;
@@ -287,5 +342,14 @@ void free_node(node * node){
         case WHILE_NODE:
             free_while_node((while_node *) node);
             break; 
+
+        case PROPERTY_NODE:
+            free_property_node((property_node *) node);
+            break; 
+
+        case FUNCTION_NODE:
+            free_function_node((function_node *) node);
+            break; 
+            
     }
 }

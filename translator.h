@@ -38,4 +38,10 @@ char * translate_if_otherwise_node (if_otherwise_node * node);
 
 char * translate_while_node (while_node * node);
 
+char * translate_property_node (property_node * node);
+
+char * translate_function_node (function_node * node);
+
+void print_initial_functions();
+
 #endif

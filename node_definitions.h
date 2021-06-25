@@ -10,42 +10,54 @@ typedef enum{
     ASSIGNATION,
     EXP,
     PRINT_NODE,
+    PROPERTY_NODE,
     NODE_LIST,
+    PARAM_NODE_LIST,
     LOG_COMP,
     REL_COMP,
     IF_NODE,
     IF_OTHERWISE,
     WHILE_NODE,
+    FUNCTION_NODE,
 }node_type;
 
 typedef enum{
-    INT_TYPE = 0,
-    STRING_TYPE = 1,
-    CIRCLE_TYPE = 2,
-    TRIANGLE_TYPE = 3,
-    RECTANGLE_TYPE = 4,
-    EMPTY = 5,
+    EMPTY = 0,
+    INT_TYPE,
+    STRING_TYPE,
+    CIRCLE_TYPE,
+    TRIANGLE_TYPE,
+    RECTANGLE_TYPE,
 }data_type;
 
 typedef enum{
+    RADIUS_TYPE,
+    SIDE_1_TYPE,
+    SIDE_2_TYPE,
+    SIDE_3_TYPE,
+    HEIGHT_TYPE,
+    BASE_TYPE,
+}figure_property_type;
+
+typedef enum{
     PLUS_TYPE = 0,
-    MINUS_TYPE = 1,
-    PRODUCT_TYPE = 2,
-    DIVISION_TYPE = 3,
+    MINUS_TYPE,
+    PRODUCT_TYPE,
+    DIVISION_TYPE,
 }aritmetic_op_type;
 
 typedef enum{
-    GT_TYPE = 0,
-    GE_TYPE = 1,
-    LT_TYPE = 2,
-    LE_TYPE = 3,
-    EQ_TYPE = 4,
-    NEQ_TYPE = 5,
+    GT_TYPE,
+    GE_TYPE,
+    LT_TYPE,
+    LE_TYPE,
+    EQ_TYPE,
+    NEQ_TYPE,
 }relational_op_type;
 
 typedef enum{
     AND_TYPE = 0,
-    OR_TYPE = 1,
+    OR_TYPE,
 }logical_op_type;
 
 typedef struct node{
@@ -53,16 +65,30 @@ typedef struct node{
 }node;
 
 typedef struct node_list{
-    node_type type;
+    node_type type; //it could be node_param_list or node_list, it depends where is used
     struct node * node;
     struct node_list * next;
 }node_list;
+
+typedef struct property_node{
+    node_type type;
+    char * var_name;
+    figure_property_type property_type;
+    data_type return_type;
+}property_node;
 
 typedef struct variable_node{ 
     node_type type;
     data_type variable_type;
     char * name;
 }variable_node;
+
+typedef struct function_node{
+    node_type type;
+    data_type return_type;
+    char * name;
+    node * node_param_list;
+}function_node;
 
 typedef struct constant_int_node{ 
     node_type type;
