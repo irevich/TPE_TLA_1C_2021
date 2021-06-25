@@ -18,6 +18,7 @@ typedef enum{
     REL_COMP,
     IF_NODE,
     IF_OTHERWISE,
+    WHILE_NODE,
 }node_type;
 
 typedef enum{
@@ -123,6 +124,12 @@ typedef struct if_otherwise_node{
     node * right_node; 
 }if_otherwise_node;
 
+typedef struct while_node{
+    node_type type;
+    node * cond;
+    node * code; 
+}while_node;
+
 variable_node * create_variable_node(data_type variable_type, char * name);
 void free_variable_node(variable_node * node);
 constant_int_node * create_constant_int_node( int value);
@@ -147,5 +154,7 @@ if_node * create_if_node(node * cond, node * code);
 void free_if_node(if_node * node);
 if_otherwise_node * create_if_otherwise_node(node * cond, node * left, node * right);
 void free_if_otherwise_node(if_otherwise_node * node);
+while_node * create_while_node(node * cond, node * code);
+void free_while_node(while_node * node);
 
 #endif

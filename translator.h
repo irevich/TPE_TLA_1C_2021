@@ -34,6 +34,6 @@ char * translate_if_node (if_node * node);
 
 char * translate_if_otherwise_node (if_otherwise_node * node);
 
-
+char * translate_while_node (while_node * node);
 
 #endif

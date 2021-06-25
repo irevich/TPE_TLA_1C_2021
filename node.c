@@ -169,6 +169,21 @@ void free_if_node(if_node * node){
     free(node);
 }
 
+while_node * create_while_node(node * cond, node * code){
+    //printf("Creando el node if\n");
+    while_node * new_node = malloc(sizeof(while_node));
+    new_node->type = WHILE_NODE;
+    new_node->cond = cond;
+    new_node->code = code;
+    return new_node;
+}
+
+void free_while_node(while_node * node){
+    free_node(node->cond);
+    free_node(node->code);
+    free(node);
+}
+
 if_otherwise_node * create_if_otherwise_node(node * cond, node * left, node * right){
     if_otherwise_node * new_node = malloc(sizeof(if_otherwise_node));
     new_node->type = IF_OTHERWISE;
@@ -230,6 +245,10 @@ void free_node(node * node){
 
         case IF_OTHERWISE:
             free_if_otherwise_node((if_otherwise_node *) node);
+            break; 
+
+        case WHILE_NODE:
+            free_while_node((while_node *) node);
             break; 
     }
 }

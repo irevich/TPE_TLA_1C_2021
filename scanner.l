@@ -62,7 +62,7 @@ digit  [0-9]
 "get_triangle_area"             return AREA_T;
 \"                              return QM;
 {letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
-{digit}+                        {yylval.num = atoi(yytext); return NUM;}
+(-)?{digit}+                    {yylval.num = atoi(yytext); return NUM;}
 
 
 [ \t\r\n]+		;		//Ignore white space

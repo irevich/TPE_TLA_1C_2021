@@ -20,6 +20,10 @@ int get_cant_digits(int num){
 
     if(num == 0 )
         return 1;
+
+    if( num < 0){
+        cant++;
+    }
     
     while(num!=0){
         num/=10;
@@ -78,6 +82,10 @@ char * translate_node(node * node_to_translate){
 
         case IF_OTHERWISE:
             result = translate_if_otherwise_node((if_otherwise_node *) node_to_translate);
+            break; 
+
+        case WHILE_NODE:
+            result = translate_while_node((while_node *) node_to_translate);
             break; 
     }
     return result;
@@ -212,6 +220,23 @@ char * translate_if_otherwise_node (if_otherwise_node * node){
     return string;
 }
 
+char * translate_while_node (while_node * node){
+    char * string = NULL;
+
+    char * while_start = "while(";                                  
+    char * translated_comp = translate_node(node->cond);
+    char * while_close = "){\n";
+    char * translated_code = translate_node(node->code);
+    char * code_end = "}\n";
+    
+    string = malloc(strlen(while_start) + strlen(translated_comp) + strlen(while_close) + strlen(translated_code) + strlen(code_end) + 1);
+    sprintf(string, "%s%s%s%s%s", while_start, translated_comp, while_close, translated_code, code_end);
+    free(translated_comp);
+    free(translated_code);
+    
+    return string;
+}
+
 char * translate_node_list(node_list * list_node){
     char * translated_actual_node = translate_node(list_node->node);
     char * translated_next_node = "";
@@ -236,6 +261,7 @@ char * translate_node_list(node_list * list_node){
     return translated_list_node;
 
 }
+
 
 char * translate_to_c(node_list * first_node){
 

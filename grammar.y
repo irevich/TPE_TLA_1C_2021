@@ -143,7 +143,7 @@
 %type<node> param;
 %type<node_list> program; 
 %type<node> if_block;
-//%type<node> while_block;
+%type<node> while_block;
 %type<node> comp;
 %type<node> comp_term;
 %type<node> comp_factor;
@@ -170,12 +170,15 @@
     instruction :   declaration SEMICOLON       {;}
                 |   assignation SEMICOLON       {;}
                 |   if_block                    {;}
+                |   while_block                 {;}
                 |   PRINT OPEN_PARENTHESES QM param QM CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($4);}
                 ;
 
     if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES                                            {$$ = (node*) create_if_node($3, $6);}
                 |   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES OTHERWISE OPEN_BRACES code CLOSE_BRACES    {$$ = (node*) create_if_otherwise_node($3, $6, $10);}
                 ;
+
+    while_block :   WHILE OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES         {$$ = (node*) create_while_node($3, $6);}
 
     comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3);  }
                 |   comp_term               {   $$ = $1;    }
