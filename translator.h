@@ -1,7 +1,7 @@
 #ifndef _TRANSLATOR_H_
 #define _TRANSLATOR_H_
 
-#include "node_definitions.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

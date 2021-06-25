@@ -54,19 +54,19 @@ string \"[^\"]*\"
 "side_3"                        return SIDE_3;
 "base"                          return BASE;
 "height"                        return HEIGHT;
-"create_circle"                 return CREATE_C;
-"create_rectangle"              return CREATE_R;
-"create_triangle"               return CREATE_T;
-"get_perimeter"                 return PERIMETER;
-"get_area"                      return AREA;
+"create_circle"                 {strcpy(yylval.string, yytext); return CREATE_C;}
+"create_rectangle"              {strcpy(yylval.string, yytext); return CREATE_R;}
+"create_triangle"               {strcpy(yylval.string, yytext); return CREATE_T;}
+"get_perimeter"                 {strcpy(yylval.string, yytext); return PERIMETER;}
+"get_area"                      {strcpy(yylval.string, yytext); return AREA;}
 \"                              return QM;
 {letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
 {string}                       {strcpy(yylval.string, yytext); return TEXT;}
 (-)?{digit}+                    {yylval.num = atoi(yytext); return NUM;}
 
-
-[ \t\r\n]+		;		//Ignore white space
-
+\n              {yylineno++;}
+[ \t\r]+		;		//Ignore white space
+.               return SYNTAX_ERROR;
 %%
 
 //User code section

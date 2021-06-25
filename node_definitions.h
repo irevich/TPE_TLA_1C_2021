@@ -28,6 +28,7 @@ typedef enum{
     CIRCLE_TYPE,
     TRIANGLE_TYPE,
     RECTANGLE_TYPE,
+    FIGURE_TYPE,
 }data_type;
 
 typedef enum{

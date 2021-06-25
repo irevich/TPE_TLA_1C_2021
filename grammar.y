@@ -4,8 +4,13 @@
     #include "node.h"
     #include "translator.h"
     #include "stdbool.h"
+    
+    #define MAX_PARAMS 10
+    #define STANDARD_FUNCTIONS 5
 
     int yylex();
+
+    int extern yylineno;
 
     void yyerror(node_list ** node_list_param, char const * s);
 
@@ -14,6 +19,14 @@
         char * name;
         struct variable_list_node * next; 
     }variable_list_node;
+
+    typedef struct function_defintion{
+        char * name;
+        int total_params;
+        data_type params_type[MAX_PARAMS];
+    }function_definition;
+
+    function_definition * functions_list[STANDARD_FUNCTIONS];
 
     variable_list_node * variable_header;
     variable_list_node * current_variable_node;
@@ -31,6 +44,10 @@
     bool figure_has_property(variable_list_node * variable, figure_property_type property_type);
 
     void free_variables();
+
+    void free_functions_definitions();
+
+    bool check_parameter_type(char* function_name, data_type type, int param_index);
     
 %}
 
@@ -106,13 +123,11 @@
 
 //Figure functions tokens
 
-%token PERIMETER;
-%token AREA;
+%token<string> PERIMETER;
+%token<string> AREA;
 
 //Rectangle functions tokens
-%token CREATE_R;
-%token PERIMETER_R;
-%token AREA_R;
+%token<string> CREATE_R;
 
 //Triangle properties tokens
 %token<figure_property_type>SIDE_1;
@@ -120,17 +135,13 @@
 %token<figure_property_type>SIDE_3;
 
 //Triangle functions tokens
-%token CREATE_T;
-%token PERIMETER_T;
-%token AREA_T;
+%token<string> CREATE_T;
 
 //Circle properties tokens
 %token<figure_property_type> RADIUS;
 
 //Circle functions tokens
-%token CREATE_C;
-%token PERIMETER_C;
-%token AREA_C;
+%token<string> CREATE_C;
 
 //General functions tokens
 
@@ -144,6 +155,9 @@
 
 //Num token
 %token<num> NUM;
+
+//Anything else
+%token SYNTAX_ERROR;
 
 
 //Non-Terminals
@@ -184,7 +198,7 @@
  
     code        :   instruction code        { $$ = (node *) add_node_list($2, $1, NODE_LIST);}
                 |   instruction             {$$ = (node *) create_node_list($1, NODE_LIST);}
-                ;    
+                ;
 
     instruction :   declaration SEMICOLON       {;}
                 |   assignation SEMICOLON       {;}
@@ -287,24 +301,54 @@
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
+                                                                                                if(!check_parameter_type($1, get_node_data_type($3), 0)){
+                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
+                                                                                                    free_variables();
+                                                                                                    free_functions_definitions();
+                                                                                                    exit(-1);
+                                                                                                }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(CIRCLE_TYPE, "create_circle", (node *) param_list );
                                                                                             }
             |   CREATE_R OPEN_PARENTHESES param COMA param CLOSE_PARENTHESES                {
+                                                                                                if(!check_parameter_type($1, get_node_data_type($3), 0) || !check_parameter_type($1, get_node_data_type($5), 1)){
+                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
+                                                                                                    free_variables();
+                                                                                                    free_functions_definitions();
+                                                                                                    exit(-1);
+                                                                                                }
                                                                                                 node_list * param_list = create_node_list($5, PARAM_NODE_LIST);
                                                                                                 param_list = add_node_list((node*)param_list, $3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(RECTANGLE_TYPE, "create_rectangle", (node *) param_list );
                                                                                             }
             |   CREATE_T OPEN_PARENTHESES param COMA param COMA param CLOSE_PARENTHESES     {
+                                                                                                if(!check_parameter_type($1, get_node_data_type($3), 0) || !check_parameter_type($1, get_node_data_type($5), 1) || !check_parameter_type($1, get_node_data_type($7), 2)){
+                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
+                                                                                                    free_variables();
+                                                                                                    free_functions_definitions();
+                                                                                                    exit(-1);
+                                                                                                }
                                                                                                 node_list * param_list = create_node_list($7, PARAM_NODE_LIST);
                                                                                                 param_list = add_node_list((node*)param_list, $5, PARAM_NODE_LIST);
                                                                                                 param_list = add_node_list((node*)param_list, $3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(TRIANGLE_TYPE, "create_triangle", (node *) param_list);}
             |   PERIMETER OPEN_PARENTHESES factor CLOSE_PARENTHESES                         {
+                                                                                                if(!check_parameter_type($1, get_node_data_type($3), 0)){
+                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
+                                                                                                    free_variables();
+                                                                                                    free_functions_definitions();
+                                                                                                    exit(-1);
+                                                                                                }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(INT_TYPE, "get_perimeter", (node *) param_list );
                                                                                             }
             |   AREA OPEN_PARENTHESES factor CLOSE_PARENTHESES                              {
+                                                                                                if(!check_parameter_type($1, get_node_data_type($3), 0)){
+                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
+                                                                                                    free_variables();
+                                                                                                    free_functions_definitions();
+                                                                                                    exit(-1);
+                                                                                                }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(INT_TYPE, "get_area", (node *) param_list );
                                                                                             }
@@ -338,7 +382,10 @@ int yywrap(){
 }
 
 void yyerror(node_list ** node_list_param, char const * s){
-    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "%s, at line %d\n", s, yylineno);
+    free_variables();
+    free_functions_definitions();
+    exit(-1);
 }
 
 void create_variable(data_type type, char * name){
@@ -436,12 +483,76 @@ void free_variables(){
     free(variable_header);
 }
 
+bool check_parameter_type(char* function_name, data_type type, int param_index){
+    int i = 0;
+    while(i < STANDARD_FUNCTIONS && strcmp(functions_list[i]->name, function_name) != 0){
+        i++;
+    }
+
+    data_type expected = functions_list[i]->params_type[param_index];
+
+    if(i < STANDARD_FUNCTIONS && param_index < functions_list[i]->total_params){
+        if(expected == type || (expected == FIGURE_TYPE && (type == CIRCLE_TYPE || type == RECTANGLE_TYPE || type == TRIANGLE_TYPE)))
+            return true;
+    }
+    return false;
+}
+
+void free_functions_definitions(){
+    int i = 0;
+    while(i < STANDARD_FUNCTIONS){
+        free(functions_list[i]);
+        i++;
+    }
+}
+
+void fill_functions_definitions(){
+    int i = 0;
+
+    functions_list[i] = malloc(sizeof(function_definition));
+    functions_list[i]->name = "create_circle";
+    functions_list[i]->params_type[0] = INT_TYPE;
+    functions_list[i]->total_params = 1;
+    i++;
+    functions_list[i] = malloc(sizeof(function_definition));
+    functions_list[i]->name = "create_rectangle";
+    functions_list[i]->params_type[0] = INT_TYPE;
+    functions_list[i]->params_type[1] = INT_TYPE;
+    functions_list[i]->total_params = 2; 
+    i++;
+    functions_list[i] = malloc(sizeof(function_definition));
+    functions_list[i]->name = "create_triangle";
+    functions_list[i]->params_type[0] = INT_TYPE;
+    functions_list[i]->params_type[1] = INT_TYPE;
+    functions_list[i]->params_type[2] = INT_TYPE;
+    functions_list[i]->total_params = 3;
+    i++;
+    
+    functions_list[i] = malloc(sizeof(function_definition));
+    functions_list[i]->name = "get_perimeter";
+    functions_list[i]->params_type[0] = FIGURE_TYPE;
+    functions_list[i]->total_params = 1;
+    i++;
+    
+    functions_list[i] = malloc(sizeof(function_definition));
+    functions_list[i]->name = "get_area";
+    functions_list[i]->params_type[0] = FIGURE_TYPE;
+    functions_list[i]->total_params = 1;
+    i++;
+    
+    if (STANDARD_FUNCTIONS != i){
+        fprintf(stderr, "Error filling function definitions\n");
+        exit(-1);
+    }
+}
+
 int main(int argc, char * argv[]){
     variable_header = malloc(sizeof(variable_list_node));
     variable_header->name = NULL;
     variable_header->type = EMPTY;
     variable_header->next = NULL;
     current_variable_node = variable_header;
+    fill_functions_definitions();
     struct node_list * program_list;
     yyparse(&program_list);
     //printf("Program list pointer : %p\n", program_list);
@@ -456,6 +567,7 @@ int main(int argc, char * argv[]){
     printf("return 0;\n");
     printf("}\n");
     free_variables();
+    free_functions_definitions();
     free_node((node *) program_list);
     free(program);
     return 0;

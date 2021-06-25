@@ -1,11 +1,10 @@
 #ifndef _NODE_H_
 #define _NODE_H_
 
-#include "node_definitions.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "node_definitions.h"
+#include "utils.h"
 
 variable_node * create_variable_node(data_type variable_type, char * name);
 void free_variable_node(variable_node * node);
