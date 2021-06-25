@@ -38,8 +38,9 @@
 %union{
     char string[500];
     int num;
-    struct node * node;
-    struct node_list * node_list;
+    node * node;
+    node_list * node_list;
+    data_type data;
 }
 
 //Program delimeter tokens
@@ -125,6 +126,9 @@
 
 %token PRINT;
 
+//Text token
+%token<string> TEXT;
+
 //Identifier token
 %token<string> IDENTIFIER;
 
@@ -148,13 +152,14 @@
 %type<node> comp_term;
 %type<node> comp_factor;
 %type<string> or;
+%type<data> var_type; 
 
 
 
 //Starting rule
 %start program
 
-%parse-param{struct node_list ** program_list}
+%parse-param{node_list ** program_list}
 
 
 //Productions
@@ -171,7 +176,7 @@
                 |   assignation SEMICOLON       {;}
                 |   if_block                    {;}
                 |   while_block                 {;}
-                |   PRINT OPEN_PARENTHESES QM param QM CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($4);}
+                |   PRINT OPEN_PARENTHESES param CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($3);}
                 ;
 
     if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES                                            {$$ = (node*) create_if_node($3, $6);}
@@ -200,16 +205,26 @@
                 ;
 
     
-    declaration :   INT IDENTIFIER ASSIGN param  {                  
+    declaration :   var_type IDENTIFIER ASSIGN param  {                  
                     if(check_variable($2)){
                         fprintf(stderr, "Error. Variable %s already declared\n", $2);
                         free_variables();
                         exit(-1);
                     }
-                    create_variable(INT_TYPE, $2);
-                    $$ = (node*) create_declaration_node($2, INT_TYPE, $4);                  
+                    create_variable($1, $2);
+                    $$ = (node*) create_declaration_node($2,$1, $4);
+                    if($$ == NULL){
+                        fprintf(stderr, "Error. Declaration of variable %s with incorrect data type", $2);
+                        free_variables();
+                        free_node($4);
+                        exit(-1);
+                    }                    
                     }
                 ;
+
+    var_type   :   INT     { $$ = INT_TYPE;}
+               |   STRING  { $$ = STRING_TYPE;}
+               ;
 
     assignation :   IDENTIFIER ASSIGN param     {
 
@@ -223,6 +238,7 @@
                 ;
 
     param       :   exp         {$$ = $1;}
+                |   TEXT        {$$ = (node *) create_constant_string_node($1);}
                 ;
 
     exp         :   exp PLUS term       {   $$ = (node*) create_exp_node("+",$1,$3);  }

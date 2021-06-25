@@ -1,5 +1,21 @@
 #include "node.h"
 
+int get_node_data_type(node * node_param){
+    switch(node_param->type){
+        case VARIABLE:  
+            return ((variable_node *) (node_param))->variable_type;
+        case CONSTANT_STRING:   
+            return STRING_TYPE;
+        case CONSTANT_INT:  
+            return INT_TYPE;
+        case EXP:  
+            return INT_TYPE;
+        default:    
+            return -1;
+    }
+    return -1;
+
+}
 
 variable_node * create_variable_node(data_type variable_type, char * name){
     variable_node * new_node = malloc(sizeof(variable_node));
@@ -24,6 +40,20 @@ constant_int_node * create_constant_int_node( int value){
 
 }
 
+constant_string_node * create_constant_string_node(char * value){
+    
+    constant_string_node * new_node = malloc(sizeof(constant_string_node));
+    new_node->type = CONSTANT_STRING;
+    new_node->value = malloc(strlen(value) + 1);
+    strcpy(new_node->value, value);
+    return new_node;
+}
+
+void free_constant_string_node(constant_string_node * string_node){
+    free(string_node->value);
+    free(string_node);
+}
+
 void free_constant_int_node (constant_int_node * node){
     free(node);
 }
@@ -31,6 +61,9 @@ void free_constant_int_node (constant_int_node * node){
 
 declaration_node * create_declaration_node(char * name, data_type type, node * assigned_node){
     //printf("Creando el node declaration\n");
+    if(type != get_node_data_type(assigned_node)){
+        return NULL;
+    }
     declaration_node * new_node = malloc(sizeof(declaration_node));
     new_node->type = DECLARATION;
     new_node->declaration_type = type;
@@ -210,6 +243,10 @@ void free_node(node * node){
         case CONSTANT_INT:
             free_constant_int_node((constant_int_node *)node);
             break;
+        
+        case CONSTANT_STRING:
+            free_constant_string_node((constant_string_node *) node);
+            break; 
         
         case DECLARATION:
             free_declaration_node((declaration_node *) node);

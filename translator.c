@@ -7,6 +7,10 @@ char * get_data_type(data_type type){
             result = malloc(strlen("int") + 1);
             strcpy(result, "int");
             break;
+        case STRING_TYPE:
+            result = malloc(strlen("char *") + 1);
+            strcpy(result, "char *");
+            break;
         default:
             break;    
     }
@@ -46,6 +50,10 @@ char * translate_node(node * node_to_translate){
 
         case CONSTANT_INT:
             result = translate_constant_int_node((constant_int_node *)node_to_translate);
+            break;
+
+        case CONSTANT_STRING:
+            result = translate_constant_string_node((constant_string_node *) node_to_translate);
             break;
         
         case DECLARATION:
@@ -139,6 +147,12 @@ char * translate_constant_int_node (constant_int_node * node){
     return string_num;
 }
 
+char * translate_constant_string_node(constant_string_node * node){
+    char * string_value = malloc(strlen(node->value) +1);
+    strcpy(string_value, node->value);
+    return string_value;
+}
+
 char * translate_exp_node ( exp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
@@ -152,8 +166,26 @@ char * translate_exp_node ( exp_node * node){
 char * translate_print_node(print_node * node){
     char * string = NULL;
 
-    char * before = "printf(\"%d\", ";                      
     char * translated_content_node = translate_node(node->content_node);
+
+    char * before = NULL;
+
+    if(node->content_node->type == EXP || node->content_node->type == CONSTANT_INT){ //Do I need to escape the " " and %x
+        before = "printf(\"%d\", "; 
+    }
+    else if(node->content_node->type == CONSTANT_STRING){
+        before = "printf(\"%s\", "; 
+    }
+    else if(node->content_node->type == VARIABLE){
+        if(((variable_node *)(node->content_node))->variable_type == INT_TYPE){
+            before = "printf(\"%d\", "; 
+        }
+        else{
+            before = "printf(\"%s\", "; 
+        }
+    }
+
+    
     char * after = ");\n";
     
     string = malloc(strlen(before) + strlen(translated_content_node) + strlen(after) + 1);

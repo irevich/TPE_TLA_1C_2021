@@ -1,7 +1,7 @@
 #ifndef _TRANSLATOR_H_
 #define _TRANSLATOR_H_
 
-#include "node.h"
+#include "node_definitions.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +17,8 @@ char * translate_declaration_node(declaration_node * dec_node);
 char * translate_assignation_node(assignation_node * assign_node);
 
 char * translate_constant_int_node(constant_int_node * node);
+
+char * translate_constant_string_node(constant_string_node * node);
 
 char * translate_variable_node(variable_node * node);
 

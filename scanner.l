@@ -1,6 +1,7 @@
 %{
     //C declarations
 
+    #include "node_definitions.h"
     #include "y.tab.h"
 
 %}
@@ -9,6 +10,7 @@
 
 letter [a-zA-Z]
 digit  [0-9]
+string \"[^\"]*\"
 
 %%
 
@@ -62,6 +64,7 @@ digit  [0-9]
 "get_triangle_area"             return AREA_T;
 \"                              return QM;
 {letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
+{string}                       {strcpy(yylval.string, yytext); return TEXT;}
 (-)?{digit}+                    {yylval.num = atoi(yytext); return NUM;}
 
 
