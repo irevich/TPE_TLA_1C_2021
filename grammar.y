@@ -230,11 +230,9 @@
                                                     node * exp2_node = (node *) $3;
                                                     node * exp1_node = (node *) $1;
                                                     if(get_node_data_type(exp1_node)!= INT_TYPE || get_node_data_type(exp2_node)!= INT_TYPE ){
-                                                        fprintf(stderr, "Error. Invalid aritmethic expression \n");
-                                                        free_variables();
-                                                        free_node(exp1_node);
-                                                        free_node(exp2_node);
-                                                        exit(-1);
+                                                        char * error_message = malloc(strlen("Error. Invalid relational expression") + 1);
+                                                        sprintf(error_message, "Error. Invalid relational expression");
+                                                        yyerror(NULL, error_message);
                                                     }
                                                     $$ = (node*) create_relational_comp_node($2,$1,$3);  
                                             }
@@ -251,17 +249,16 @@
     
     declaration :   var_type IDENTIFIER ASSIGN param  {                  
                     if(check_variable($2)){
-                        fprintf(stderr, "Error. Variable %s already declared\n", $2);
-                        free_variables();
-                        exit(-1);
+                        char * error_message = malloc(strlen("Error. Variable %s already declared") + strlen($2) + 1);
+                        sprintf(error_message, "Error. Declaration of variable %s with incorrect data type", $2);
+                        yyerror(NULL, error_message);
                     }
                     create_variable($1, $2);
                     $$ = (node*) create_declaration_node($2,$1, $4);
                     if($$ == NULL){
-                        fprintf(stderr, "Error. Declaration of variable %s with incorrect data type", $2);
-                        free_variables();
-                        free_node($4);
-                        exit(-1);
+                        char * error_message = malloc(strlen("Error. Declaration of variable %s with incorrect data type") + strlen($2) + 1);
+                        sprintf(error_message, "Error. Declaration of variable %s with incorrect data type", $2);
+                        yyerror(NULL, error_message);
                     }                    
                     }
                 ;
@@ -276,9 +273,9 @@
     assignation :   IDENTIFIER ASSIGN param     {
 
                     if(!check_variable($1)){
-                        fprintf(stderr, "Error. Variable %s not declared\n", $1);
-                        free_variables();
-                        exit(-1);
+                        char * error_message = malloc(strlen("Error. Variable %s not declared") + strlen($1) + 1);
+                        sprintf(error_message, "Error. Variable %s not declared", $1);
+                        yyerror(NULL, error_message);
                     }
                     $$ = (node *) create_assignation_node($1, $3);
                     }
@@ -293,11 +290,9 @@
                                             node * term_node = (node *) $3;
                                             node * exp_node = (node *) $1;
                                             if(get_node_data_type(exp_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
-                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
-                                                    free_variables();
-                                                    free_node(term_node);
-                                                    free_node(exp_node);
-                                                    exit(-1);
+                                                char * error_message = malloc(strlen("Error. Invalid aritmethic expression") + 1);
+                                                sprintf(error_message, "Error. Invalid aritmethic expression");
+                                                yyerror(NULL, error_message);
                                             }
                                             $$ = (node*) create_exp_node("+",$1,$3);  
                                         }
@@ -305,11 +300,9 @@
                                             node * term_node = (node *) $3;
                                             node * exp_node = (node *) $1;
                                             if(get_node_data_type(exp_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
-                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
-                                                    free_variables();
-                                                    free_node(term_node);
-                                                    free_node(exp_node);
-                                                    exit(-1);
+                                                char * error_message = malloc(strlen("Error. Invalid aritmethic expression") + 1);
+                                                sprintf(error_message, "Error. Invalid aritmethic expression");
+                                                yyerror(NULL, error_message);
                                             }
                                             $$ = (node*) create_exp_node("-",$1,$3);  
                                         }
@@ -319,11 +312,9 @@
     term        :   term PRODUCT factor     {   node * factor_node = (node *) $3;
                                                 node * term_node = (node *) $1;
                                                 if(get_node_data_type(factor_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
-                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
-                                                    free_variables();
-                                                    free_node(term_node);
-                                                    free_node(factor_node);
-                                                    exit(-1);
+                                                    char * error_message = malloc(strlen("Error. Invalid aritmethic expression") + 1);
+                                                    sprintf(error_message, "Error. Invalid aritmethic expression");
+                                                    yyerror(NULL, error_message);
                                                 }
                                                 $$ = (node*) create_exp_node("*",$1,$3);  
                                             }
@@ -331,11 +322,9 @@
                                                 node * factor_node = (node *) $3;
                                                 node * term_node = (node *) $1;
                                                 if(get_node_data_type(factor_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
-                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
-                                                    free_variables();
-                                                    free_node(term_node);
-                                                    free_node(factor_node);
-                                                    exit(-1);
+                                                    char * error_message = malloc(strlen("Error. Invalid aritmethic expression") + 1);
+                                                    sprintf(error_message, "Error. Invalid aritmethic expression");
+                                                    yyerror(NULL, error_message);
                                                 }
                                                 $$ = (node*) create_exp_node("/",$1,$3);  
                                             }
@@ -345,9 +334,9 @@
     factor      :   IDENTIFIER      {
                                         variable_list_node * variable = find_variable($1);
                                         if(variable == NULL){
-                                            fprintf(stderr, "Error. Variable %s not declared\n", $1);
-                                            free_variables();
-                                            exit(-1);
+                                            char * error_message = malloc(strlen("Error. Variable %s not declared") + strlen($1) + 1);
+                                            sprintf(error_message, "Error. Variable %s not declared", $1);
+                                            yyerror(NULL, error_message);
                                         }
                                         $$ = (node*)create_variable_node(variable->type, $1);
                                     }
@@ -358,20 +347,18 @@
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
                                                                                                 if(!check_parameter_type($1, get_node_data_type($3), 0)){
-                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
-                                                                                                    free_variables();
-                                                                                                    free_functions_definitions();
-                                                                                                    exit(-1);
+                                                                                                    char * error_message = malloc(strlen("Error. Invalid function parameter type on function %s") + strlen($1) + 1);
+                                                                                                    sprintf(error_message, "Error. Invalid function parameter type on function %s", $1);
+                                                                                                    yyerror(NULL, error_message);
                                                                                                 }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(CIRCLE_TYPE, "create_circle", (node *) param_list );
                                                                                             }
             |   CREATE_R OPEN_PARENTHESES param COMA param CLOSE_PARENTHESES                {
                                                                                                 if(!check_parameter_type($1, get_node_data_type($3), 0) || !check_parameter_type($1, get_node_data_type($5), 1)){
-                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
-                                                                                                    free_variables();
-                                                                                                    free_functions_definitions();
-                                                                                                    exit(-1);
+                                                                                                    char * error_message = malloc(strlen("Error. Invalid function parameter type on function %s") + strlen($1) + 1);
+                                                                                                    sprintf(error_message, "Error. Invalid function parameter type on function %s", $1);
+                                                                                                    yyerror(NULL, error_message);
                                                                                                 }
                                                                                                 node_list * param_list = create_node_list($5, PARAM_NODE_LIST);
                                                                                                 param_list = add_node_list((node*)param_list, $3, PARAM_NODE_LIST);
@@ -379,10 +366,9 @@
                                                                                             }
             |   CREATE_T OPEN_PARENTHESES param COMA param COMA param CLOSE_PARENTHESES     {
                                                                                                 if(!check_parameter_type($1, get_node_data_type($3), 0) || !check_parameter_type($1, get_node_data_type($5), 1) || !check_parameter_type($1, get_node_data_type($7), 2)){
-                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
-                                                                                                    free_variables();
-                                                                                                    free_functions_definitions();
-                                                                                                    exit(-1);
+                                                                                                    char * error_message = malloc(strlen("Error. Invalid function parameter type on function %s") + strlen($1) + 1);
+                                                                                                    sprintf(error_message, "Error. Invalid function parameter type on function %s", $1);
+                                                                                                    yyerror(NULL, error_message);
                                                                                                 }
                                                                                                 node_list * param_list = create_node_list($7, PARAM_NODE_LIST);
                                                                                                 param_list = add_node_list((node*)param_list, $5, PARAM_NODE_LIST);
@@ -390,20 +376,18 @@
                                                                                                 $$ = (node *) create_function_node(TRIANGLE_TYPE, "create_triangle", (node *) param_list);}
             |   PERIMETER OPEN_PARENTHESES factor CLOSE_PARENTHESES                         {
                                                                                                 if(!check_parameter_type($1, get_node_data_type($3), 0)){
-                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
-                                                                                                    free_variables();
-                                                                                                    free_functions_definitions();
-                                                                                                    exit(-1);
+                                                                                                    char * error_message = malloc(strlen("Error. Invalid function parameter type on function %s") + strlen($1) + 1);
+                                                                                                    sprintf(error_message, "Error. Invalid function parameter type on function %s", $1);
+                                                                                                    yyerror(NULL, error_message);
                                                                                                 }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(INT_TYPE, "get_perimeter", (node *) param_list );
                                                                                             }
             |   AREA OPEN_PARENTHESES factor CLOSE_PARENTHESES                              {
                                                                                                 if(!check_parameter_type($1, get_node_data_type($3), 0)){
-                                                                                                    fprintf(stderr, "Error. Invalid function parameter type on function %s\n", $1);
-                                                                                                    free_variables();
-                                                                                                    free_functions_definitions();
-                                                                                                    exit(-1);
+                                                                                                    char * error_message = malloc(strlen("Error. Invalid function parameter type on function %s") + strlen($1) + 1);
+                                                                                                    sprintf(error_message, "Error. Invalid function parameter type on function %s", $1);
+                                                                                                    yyerror(NULL, error_message);
                                                                                                 }
                                                                                                 node_list * param_list = create_node_list($3, PARAM_NODE_LIST);
                                                                                                 $$ = (node *) create_function_node(INT_TYPE, "get_area", (node *) param_list );
@@ -412,9 +396,9 @@
 
     figure_property :   IDENTIFIER ARROW property   {
                                                         if(!check_figure_property($1,$3)){
-                                                            fprintf(stderr, "Error. Variable %s not declared or invalid property\n", $1);
-                                                            free_variables();
-                                                            exit(-1);
+                                                            char * error_message = malloc(strlen("Error. Variable  not declared or invalid property") + strlen($1) + 1);
+                                                            sprintf(error_message, "Error. Variable %s not declared or invalid property", $1);
+                                                            yyerror(NULL, error_message);
                                                         }
                                                         $$ = (node*) create_property_node($1, $3);
                                                             
@@ -439,8 +423,6 @@ int yywrap(){
 
 void yyerror(node_list ** node_list_param, char const * s){
     fprintf(stderr, "%s, at line %d\n", s, yylineno);
-    free_variables();
-    free_functions_definitions();
     exit(-1);
 }
 
