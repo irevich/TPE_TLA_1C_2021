@@ -21,6 +21,12 @@
         struct variable_list_node * next; 
     }variable_list_node;
 
+    typedef struct scope_list_node{
+        struct variable_list_node * variables_list;
+        struct scope_list_node * next;
+        struct scope_list_node * prev;
+    }scope_list_node;
+
     typedef struct function_defintion{
         char * name;
         int total_params;
@@ -29,14 +35,18 @@
 
     function_definition * functions_list[STANDARD_FUNCTIONS];
 
-    variable_list_node * variable_header;
-    variable_list_node * current_variable_node;
+    scope_list_node * scope_list_header;
+    scope_list_node * current_scope_list_node;
+    
+    void push_scope();
 
-    bool check_variable(char * name);
+    void pop_scope();
 
     void create_variable(data_type type, char * name);
 
     variable_list_node * find_variable(char * name);
+    
+    variable_list_node * find_variable_in_scope(char * name, variable_list_node * variable_header);
 
     bool is_figure (variable_node * variable);
 
@@ -46,9 +56,7 @@
 
     bool figure_has_property(variable_node * variable, figure_property_type property_type);
 
-    variable_list_node * find_variable(char * name);
-
-    void free_variables();
+    void free_variables(variable_list_node * variable_header);
 
     void free_functions_definitions();
 
@@ -195,6 +203,11 @@
 
 %parse-param{node_list ** program_list}
 
+%right ASSIGN
+%left PLUS MINUS
+%left PRODUCT DIVISION
+%left LT LE GE GT
+
 
 //Productions
 %%
@@ -213,14 +226,29 @@
                 |   PRINT OPEN_PARENTHESES param CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($3);}
                 ;
 
-    if_block    :   IF OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES otherwise_block    {if($8 == NULL){$$ = (node*) create_if_node($3, $6);} else {$$ = (node*) create_if_otherwise_node($3, $6, $8);}}
+    if_block    :   IF {push_scope();} OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES {pop_scope();} otherwise_block    {  
+                                                                                                                            
+                                                                                                                                    if($10 == NULL){
+                                                                                                                                        $$ = (node*) create_if_node($4, $7);
+                                                                                                                                    } 
+                                                                                                                                    else {
+                                                                                                                                        $$ = (node*) create_if_otherwise_node($4, $7, $10);
+                                                                                                                                    }
+                                                                                                                                
+                                                                                                                }
                 ;
 
-    otherwise_block : OTHERWISE OPEN_BRACES code CLOSE_BRACES {$$ = $3;}
-                    |                                        {$$ = NULL;}
+    otherwise_block : OTHERWISE {push_scope();} OPEN_BRACES code CLOSE_BRACES   {
+                                                                                    $$ = $4;
+                                                                                    pop_scope();
+                                                                                }
+                    |                                                           {$$ = NULL;}
                     ;
 
-    while_block :   WHILE OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES         {$$ = (node*) create_while_node($3, $6);}
+    while_block :   WHILE {push_scope();} OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES         {
+                                                                                                                             $$ = (node*) create_while_node($4, $7);
+                                                                                                                             pop_scope();
+                                                                                                                        }
 
     comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3,0);  }
                 |   comp_term               {   $$ = $1;    }
@@ -264,7 +292,7 @@
 
     
     declaration :   var_type IDENTIFIER ASSIGN param  {                  
-                    if(check_variable($2)){
+                    if(find_variable($2) != NULL){
                         char * error_message = malloc(strlen("Error. Variable %s already declared") + strlen($2) + 1);
                         sprintf(error_message, "Error. Variable %s already declared", $2);
                         yyerror(NULL, error_message);
@@ -444,9 +472,9 @@
     variable:   IDENTIFIER  {
                                 variable_list_node * variable = find_variable($1);
                                 if(variable == NULL){
-                                    fprintf(stderr, "Error. Variable %s not declared\n", $1);
-                                    free_variables();
-                                    exit(-1);
+                                    char * error_message = malloc(strlen("Error. Variable %s not declared") + strlen($1) + 1);
+                                    sprintf(error_message, "Error. Variable %s not declared", $1);
+                                    yyerror(NULL, error_message);
                                 }
                                 $$ = (node*)create_variable_node(variable->type, $1);
                             }
@@ -467,34 +495,28 @@ void yyerror(node_list ** node_list_param, char const * s){
 }
 
 void create_variable(data_type type, char * name){
-    current_variable_node->next = malloc(sizeof(variable_list_node));
-    current_variable_node->next->name = malloc(strlen(name) + 1);
-    strcpy(current_variable_node->next->name, name);
-    current_variable_node->next->type = type;
-    current_variable_node->next->next = NULL;
-    current_variable_node = current_variable_node->next;
-}
-
-bool check_variable(char * name){
-    variable_list_node * aux_node = variable_header->next;
-    bool found = false;
-
-    while(aux_node != NULL){
-
-        if(strcmp(aux_node->name, name) == 0){
-            found = true;
-            break;
-        }
-        aux_node = aux_node->next;
+    variable_list_node * variable_header = current_scope_list_node->variables_list;
+    if(variable_header == NULL){
+        current_scope_list_node->variables_list = malloc(sizeof(variable_list_node));
+        current_scope_list_node->variables_list->name = malloc(strlen(name) + 1);
+        strcpy(current_scope_list_node->variables_list->name, name);
+        current_scope_list_node->variables_list->type = type;
+        current_scope_list_node->variables_list->next = NULL;
     }
-
-    return found; 
+    else{
+        variable_list_node * current_variable_node = variable_header;
+        while(current_variable_node->next != NULL){
+            current_variable_node = current_variable_node->next;
+        }
+        current_variable_node->next = malloc(sizeof(variable_list_node));
+        current_variable_node->next->name = malloc(strlen(name) + 1);
+        strcpy(current_variable_node->next->name, name);
+        current_variable_node->next->type = type;
+        current_variable_node->next->next = NULL;
+    }
 }
 
 bool check_figure_property (node * var_node, figure_property_type property_type){
-    //variable_list_node * variable = find_variable(name);
-    //if(variable == NULL)
-    //    return false;
     if(!is_figure((variable_node *) var_node))
         return false;
     return figure_has_property((variable_node *) var_node,property_type); 
@@ -527,7 +549,26 @@ bool figure_has_property(variable_node * variable, figure_property_type property
 }
 
 variable_list_node * find_variable(char * name){
-    variable_list_node * aux_node = variable_header->next;
+
+    scope_list_node * aux_scope = scope_list_header;
+    variable_list_node * ret_variable = NULL;
+
+    while(aux_scope != NULL){
+        ret_variable = find_variable_in_scope(name, aux_scope->variables_list);
+        if(ret_variable != NULL){
+            return ret_variable;
+        }
+        aux_scope = aux_scope->next;
+    }
+
+    return ret_variable;
+
+}
+
+
+variable_list_node * find_variable_in_scope(char * name, variable_list_node * variable_header){
+    
+    variable_list_node * aux_node = variable_header;
     bool found = false;
 
     while(aux_node != NULL){
@@ -541,11 +582,13 @@ variable_list_node * find_variable(char * name){
 
     if (!found)
         aux_node = NULL;
+
     return aux_node; 
 }
 
-void free_variables(){
-    current_variable_node = variable_header->next;
+void free_variables(variable_list_node * variable_header){
+
+    variable_list_node * current_variable_node = variable_header;
     variable_list_node * aux_node;
 
     while(current_variable_node != NULL){
@@ -555,7 +598,6 @@ void free_variables(){
         current_variable_node = aux_node;
     }
 
-    free(variable_header);
 }
 
 bool check_parameter_type(char* function_name, data_type type, int param_index){
@@ -620,30 +662,61 @@ void fill_functions_definitions(){
     }
 }
 
+void push_scope(){
+
+    scope_list_node * new_scope_list_node = malloc(sizeof(scope_list_node));
+    new_scope_list_node->variables_list = NULL;
+    new_scope_list_node->next = NULL;
+    new_scope_list_node->prev = current_scope_list_node;
+    current_scope_list_node->next = new_scope_list_node;
+    current_scope_list_node = new_scope_list_node;
+}
+
+void pop_scope(){
+
+    free_variables(current_scope_list_node->variables_list);
+
+    scope_list_node * aux_prev = current_scope_list_node->prev;
+    free(current_scope_list_node);
+    
+    current_scope_list_node = aux_prev;
+
+    if(current_scope_list_node != NULL){
+        current_scope_list_node->next = NULL;
+    }
+}
+
 int main(int argc, char * argv[]){
-    variable_header = malloc(sizeof(variable_list_node));
-    variable_header->name = NULL;
-    variable_header->type = EMPTY;
-    variable_header->next = NULL;
-    current_variable_node = variable_header;
+    
+    scope_list_header = malloc(sizeof(scope_list_node));
+    scope_list_header->variables_list = NULL;
+    scope_list_header->next = NULL;
+    scope_list_header->prev = NULL;
+    current_scope_list_node = scope_list_header;
     fill_functions_definitions();
+
     struct node_list * program_list;
     yyparse(&program_list);
-    //printf("Program list pointer : %p\n", program_list);
+    
     printf("#include <stdio.h>\n");
     printf("#include <math.h>\n");
     printf("#include <stdlib.h>\n");
     printf("#include <string.h>\n");
     print_initial_functions();
     printf("int main(int argc, char * argv[]) { \n");
+    
     char * program = translate_to_c(program_list);
+    
     printf("%s\n", program);
     printf("return 0;\n");
     printf("}\n");
-    free_variables();
+    
+    pop_scope();
     free_functions_definitions();
+    
     free_node((node *) program_list);
     free(program);
+    
     return 0;
 }
 
