@@ -261,43 +261,24 @@ char * translate_print_node(print_node * node){
 
     char * before = NULL;
 
-    if(node->content_node->type == EXP || node->content_node->type == CONSTANT_INT){
+    if(get_node_data_type(node->content_node) == INT_TYPE){
         before = "printf(\"%d\", ";
     }
-    else if(node->content_node->type == CONSTANT_STRING){
+    else if(get_node_data_type(node->content_node) == STRING_TYPE){
+        before = "printf(\"%s\", ";
+    }
+    else{ //figure type
         before = "printf(\"%s\", "; 
-    }
-    else if(node->content_node->type == PROPERTY_NODE){
-        if( ((property_node *)(node->content_node))->return_type == INT_TYPE){
-            before = "printf(\"%d\", ";
-        }
-    }
-    else if(node->content_node->type == FUNCTION_NODE){ //TEMA FUNCIONES CREATE
-        if(((function_node *)(node->content_node))->return_type == INT_TYPE){
-            before = "printf(\"%d\", ";
-        } 
-    }
-    else if(node->content_node->type == VARIABLE){
-        if(((variable_node *)(node->content_node))->variable_type == INT_TYPE){
-            before = "printf(\"%d\", "; 
-        }
-        else if(((variable_node *)(node->content_node))->variable_type == STRING_TYPE){
-            before = "printf(\"%s\", "; 
-        }
-        else{ //special case as type is figure
-            before = "printf(\"%s\", "; 
-            translated_print_params = malloc(strlen("figure_to_string((figure *) ") + strlen(translated_content_node) + strlen(")") + 1);
-            sprintf(translated_print_params, "figure_to_string((figure *) %s)", translated_content_node);
-            char * after = ");\n";
+        translated_print_params = malloc(strlen("figure_to_string((figure *) ") + strlen(translated_content_node) + strlen(")") + 1);
+        sprintf(translated_print_params, "figure_to_string((figure *) %s)", translated_content_node);
+        char * after = ");\n";
     
-            string = malloc(strlen(before) + strlen(translated_print_params) + strlen(after) + 1);
-            sprintf(string, "%s%s%s", before, translated_print_params, after);
-            free(translated_content_node);
-            free(translated_print_params);            
-            return string;
-        }
+        string = malloc(strlen(before) + strlen(translated_print_params) + strlen(after) + 1);
+        sprintf(string, "%s%s%s", before, translated_print_params, after);
+        free(translated_content_node);
+        free(translated_print_params);            
+        return string;
     }
-
     char * after = ");\n";
     
     string = malloc(strlen(before) + strlen(translated_content_node) + strlen(after) + 1);
