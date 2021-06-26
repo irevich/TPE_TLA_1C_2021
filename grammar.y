@@ -39,6 +39,8 @@
 
     bool is_figure (variable_list_node * variable);
 
+    bool check_node_aritmethic_expression(node * node);
+
     bool check_figure_property (char * name, figure_property_type property_type);
 
     bool figure_has_property(variable_list_node * variable, figure_property_type property_type);
@@ -224,7 +226,18 @@
                 |   comp_factor                  {   $$ = $1;   }
                 ;
 
-    comp_factor :   exp or exp              {   $$ = (node*) create_relational_comp_node($2,$1,$3);  }
+    comp_factor :   exp or exp              {   
+                                                    node * exp2_node = (node *) $3;
+                                                    node * exp1_node = (node *) $1;
+                                                    if(get_node_data_type(exp1_node)!= INT_TYPE || get_node_data_type(exp2_node)!= INT_TYPE ){
+                                                        fprintf(stderr, "Error. Invalid aritmethic expression \n");
+                                                        free_variables();
+                                                        free_node(exp1_node);
+                                                        free_node(exp2_node);
+                                                        exit(-1);
+                                                    }
+                                                    $$ = (node*) create_relational_comp_node($2,$1,$3);  
+                                            }
                 ; 
     
     or          :   LT          { strcpy($$, "<");}
@@ -276,14 +289,57 @@
                 ;
     
 
-    exp         :   exp PLUS term       {   $$ = (node*) create_exp_node("+",$1,$3);  }
-                |   exp MINUS term      {   $$ = (node*) create_exp_node("-",$1,$3);  }
+    exp         :   exp PLUS term       {   
+                                            node * term_node = (node *) $3;
+                                            node * exp_node = (node *) $1;
+                                            if(get_node_data_type(exp_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
+                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
+                                                    free_variables();
+                                                    free_node(term_node);
+                                                    free_node(exp_node);
+                                                    exit(-1);
+                                            }
+                                            $$ = (node*) create_exp_node("+",$1,$3);  
+                                        }
+                |   exp MINUS term      {   
+                                            node * term_node = (node *) $3;
+                                            node * exp_node = (node *) $1;
+                                            if(get_node_data_type(exp_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
+                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
+                                                    free_variables();
+                                                    free_node(term_node);
+                                                    free_node(exp_node);
+                                                    exit(-1);
+                                            }
+                                            $$ = (node*) create_exp_node("-",$1,$3);  
+                                        }
                 |   term                {$$ = $1;}
                 ;
 
-    term        :   term PRODUCT factor     {   $$ = (node*) create_exp_node("*",$1,$3);  }
-                |   term DIVISION factor    {   $$ = (node*) create_exp_node("/",$1,$3);  }
-                |   factor                  {$$ = $1;}
+    term        :   term PRODUCT factor     {   node * factor_node = (node *) $3;
+                                                node * term_node = (node *) $1;
+                                                if(get_node_data_type(factor_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
+                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
+                                                    free_variables();
+                                                    free_node(term_node);
+                                                    free_node(factor_node);
+                                                    exit(-1);
+                                                }
+                                                $$ = (node*) create_exp_node("*",$1,$3);  
+                                            }
+                |   term DIVISION factor    {   
+                                                node * factor_node = (node *) $3;
+                                                node * term_node = (node *) $1;
+                                                if(get_node_data_type(factor_node)!= INT_TYPE || get_node_data_type(term_node)!= INT_TYPE ){
+                                                    fprintf(stderr, "Error. Invalid aritmethic expression \n");
+                                                    free_variables();
+                                                    free_node(term_node);
+                                                    free_node(factor_node);
+                                                    exit(-1);
+                                                }
+                                                $$ = (node*) create_exp_node("/",$1,$3);  
+                                            }
+                |   factor                  { $$ = $1; }
                 ;
 
     factor      :   IDENTIFIER      {
@@ -448,7 +504,6 @@ bool figure_has_property(variable_list_node * variable, figure_property_type pro
     }
     return false;
 }
-
 
 
 variable_list_node * find_variable(char * name){
