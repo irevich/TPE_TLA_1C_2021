@@ -193,7 +193,7 @@ void free_relational_comp_node(rel_comp_node * node){
 
 }
 
-log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node){
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node,int has_parentheses){
     //printf("Creando el node logical comp\n");
     log_comp_node * new_node = malloc(sizeof(log_comp_node));
     new_node->type = LOG_COMP;
@@ -201,6 +201,7 @@ log_comp_node * create_logical_comp_node(char * op, node * left_node, node * rig
     strcpy(new_node->op, op);
     new_node->left_node = left_node;
     new_node->right_node = right_node;
+    new_node->has_parentheses = has_parentheses;
     return new_node;
 }
 

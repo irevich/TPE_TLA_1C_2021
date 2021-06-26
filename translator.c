@@ -320,8 +320,16 @@ char * translate_rel_comp_node (rel_comp_node * node){
 char * translate_log_comp_node (log_comp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
-    char * comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
-    sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    char * comp_string;
+    if (node->has_parentheses) {
+        comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+6);
+        sprintf(comp_string,"(%s %s %s)",translated_left_node,node->op, translated_right_node);
+    }
+    else {
+        comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
+        sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
+
+    }
     free(translated_left_node);
     free(translated_right_node);
     return comp_string;

@@ -27,7 +27,7 @@ void free_node(node * node);
 
 rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node);
 void free_relational_comp_node(rel_comp_node * node);
-log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node);
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node,int has_parentheses);
 void free_logical_comp_node(log_comp_node * node);
 if_node * create_if_node(node * cond, node * code);
 void free_if_node(if_node * node);

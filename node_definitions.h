@@ -137,6 +137,7 @@ typedef struct rel_comp_node{
 typedef struct log_comp_node{
     node_type type;
     char * op;
+    int has_parentheses;
     node * left_node;
     node * right_node; 
 }log_comp_node;

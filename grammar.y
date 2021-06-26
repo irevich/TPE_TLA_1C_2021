@@ -219,11 +219,11 @@
 
     while_block :   WHILE OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES         {$$ = (node*) create_while_node($3, $6);}
 
-    comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3);  }
+    comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3,0);  }
                 |   comp_term               {   $$ = $1;    }
                 ;
 
-    comp_term   :   comp_term AND comp_factor    {   $$ = (node*) create_logical_comp_node("&&",$1, $3);  }
+    comp_term   :   comp_term AND comp_factor    {   $$ = (node*) create_logical_comp_node("&&",$1, $3,0);  }
                 |   comp_factor                  {   $$ = $1;   }
                 ;
 
@@ -237,6 +237,17 @@
                                                     }
                                                     $$ = (node*) create_relational_comp_node($2,$1,$3);  
                                             }
+                | OPEN_PARENTHESES comp CLOSE_PARENTHESES    { 
+                    if (((node *) $2)->type != LOG_COMP) {
+                        char * error_message = malloc(strlen("Error. Invalid logical expression") + 1);
+                        sprintf(error_message, "Error. Invalid logical expression");
+                        yyerror(NULL, error_message);
+                    }
+                    log_comp_node *node_comp = (log_comp_node *) $2;
+                    $$ = (node *) create_logical_comp_node(node_comp->op,node_comp->left_node,node_comp->right_node,1); 
+                    free(node_comp->op);
+                    free(node_comp);
+                    }
                 ; 
     
     or          :   LT          { strcpy($$, "<");}
@@ -256,11 +267,11 @@
                     }
                     create_variable($1, $2);
                     $$ = (node*) create_declaration_node($2,$1, $4);
-                    if($$ == NULL){
-                        char * error_message = malloc(strlen("Error. Declaration of variable %s with incorrect data type") + strlen($2) + 1);
-                        sprintf(error_message, "Error. Declaration of variable %s with incorrect data type", $2);
-                        yyerror(NULL, error_message);
-                    }                    
+                        if($$ == NULL){
+                            char * error_message = malloc(strlen("Error. Declaration of variable %s with incorrect data type") + strlen($2) + 1);
+                            sprintf(error_message, "Error. Declaration of variable %s with incorrect data type", $2);
+                            yyerror(NULL, error_message);
+                        }                    
                     }
                 ;
 
@@ -346,8 +357,16 @@
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
                 |   figure_property {$$ =  $1;}
                 |   func            {$$ = $1;}
-                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { exp_node *node_exp = (exp_node *) $2;
-                                                              $$ = (node *) create_exp_node(node_exp->op,node_exp->left_node,node_exp->right_node,1); }
+                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { if (((node *) $2)->type != EXP) {
+                                                                    char * error_message = malloc(strlen("Error. Invalid aritmethical expression") + 1);
+                                                                    sprintf(error_message, "Error. Invalid aritmethical expression");
+                                                                    yyerror(NULL, error_message);
+                                                                }
+                                                                exp_node *node_exp = (exp_node *) $2;
+                                                              $$ = (node *) create_exp_node(node_exp->op,node_exp->left_node,node_exp->right_node,1); 
+                                                              free(node_exp->op);
+                                                              free(node_exp);
+                                                              }
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
