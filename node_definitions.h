@@ -117,6 +117,7 @@ typedef struct assignation_node{
 typedef struct exp_node{ 
     node_type type;
     char * op;
+    int has_parentheses;
     node * left_node;
     node * right_node;
 }exp_node;

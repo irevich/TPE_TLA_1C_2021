@@ -16,7 +16,7 @@ declaration_node * create_declaration_node(char * name, data_type type, node * a
 void free_declaration_node(declaration_node * node);
 assignation_node * create_assignation_node(node * var_node, node * assigned_node);
 void free_assignation_node(assignation_node * node);
-exp_node * create_exp_node(char * op, node * left_node, node * right_node);
+exp_node * create_exp_node(char * op, node * left_node, node * right_node,int has_parentheses);
 void free_exp_node(exp_node * node);
 print_node * create_print_node(node * content_node);
 void free_print_node(print_node * node);

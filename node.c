@@ -118,13 +118,14 @@ void free_function_node(function_node * node){
     free(node);
 }
 
-exp_node * create_exp_node(char * op, node * left_node, node * right_node){
+exp_node * create_exp_node(char * op, node * left_node, node * right_node, int has_parentheses){
     exp_node * new_node = malloc(sizeof(exp_node));
     new_node->type = EXP;
     new_node->op = malloc(strlen(op) + 1);
     strcpy(new_node->op, op);
     new_node->left_node = left_node;
     new_node->right_node = right_node;
+    new_node->has_parentheses = has_parentheses;
     return new_node;
 }
 

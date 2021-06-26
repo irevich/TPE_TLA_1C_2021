@@ -218,8 +218,15 @@ char * translate_constant_string_node(constant_string_node * node){
 char * translate_exp_node ( exp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
-    char * exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
-    sprintf(exp,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    char * exp;
+    if (node->has_parentheses) {
+        exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+6);
+        sprintf(exp,"(%s %s %s)",translated_left_node,node->op, translated_right_node);
+    }
+    else {
+        exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
+        sprintf(exp,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    }
     free(translated_left_node);
     free(translated_right_node);
     return exp;
