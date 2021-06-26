@@ -347,7 +347,9 @@
                 |   figure_property {$$ =  $1;}
                 |   func            {$$ = $1;}
                 | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { exp_node *node_exp = (exp_node *) $2;
-                                                              $$ = (node *) create_exp_node(node_exp->op,node_exp->left_node,node_exp->right_node,1); }
+                                                              $$ = (node *) create_exp_node(node_exp->op,node_exp->left_node,node_exp->right_node,1);
+                                                              free(node_exp->op);
+                                                              free(node_exp);}
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
