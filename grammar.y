@@ -4,6 +4,7 @@
     #include "node.h"
     #include "translator.h"
     #include "stdbool.h"
+    #include "utils.h"
     
     #define MAX_PARAMS 10
     #define STANDARD_FUNCTIONS 5
@@ -44,6 +45,8 @@
     bool check_figure_property (node * var_node, figure_property_type property_type);
 
     bool figure_has_property(variable_node * variable, figure_property_type property_type);
+
+    variable_list_node * find_variable(char * name);
 
     void free_variables();
 
@@ -228,14 +231,15 @@
                 ;
 
     comp_factor :   exp or exp              {   
-                                                    node * exp2_node = (node *) $3;
-                                                    node * exp1_node = (node *) $1;
-                                                    if(get_node_data_type(exp1_node)!= INT_TYPE || get_node_data_type(exp2_node)!= INT_TYPE ){
+                                                    
+                                                    $$ = (node *) create_relational_comp_node($2,$1,$3);
+
+                                                    if($$ == NULL){
                                                         char * error_message = malloc(strlen("Error. Invalid relational expression") + 1);
                                                         sprintf(error_message, "Error. Invalid relational expression");
                                                         yyerror(NULL, error_message);
                                                     }
-                                                    $$ = (node*) create_relational_comp_node($2,$1,$3);  
+
                                             }
                 | OPEN_PARENTHESES comp CLOSE_PARENTHESES    { 
                     if (((node *) $2)->type != LOG_COMP) {
@@ -521,7 +525,6 @@ bool figure_has_property(variable_node * variable, figure_property_type property
     }
     return false;
 }
-
 
 variable_list_node * find_variable(char * name){
     variable_list_node * aux_node = variable_header->next;

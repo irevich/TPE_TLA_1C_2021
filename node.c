@@ -176,6 +176,12 @@ void free_node_list(node_list * node_to_free){
 
 rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node){
     //printf("Creando el node relational comp\n");
+    data_type type_left = get_node_data_type(left_node);
+    data_type type_right = get_node_data_type(right_node);
+
+    if(!((type_left == INT_TYPE && type_right == INT_TYPE) || (is_type_figure(type_left) && is_type_figure(type_right) && (strcmp(op, "==") == 0 || strcmp(op, "!=") == 0)))){
+        return NULL;
+    }
     rel_comp_node * new_node = malloc(sizeof(rel_comp_node));
     new_node->type = REL_COMP;
     new_node->op = malloc(strlen(op) + 1);
@@ -257,7 +263,6 @@ void free_if_otherwise_node(if_otherwise_node * node){
     free_node(node->right_node);
     free(node);
 }
-
 
 void free_node(node * node){
     switch(node->type){

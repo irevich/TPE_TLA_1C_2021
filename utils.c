@@ -21,6 +21,16 @@ int get_node_data_type(node * node_param){
 
 }
 
+bool is_type_figure(int type){
+    switch(type){
+        case CIRCLE_TYPE:
+        case RECTANGLE_TYPE:
+        case TRIANGLE_TYPE:
+            return true;
+    }
+    return false;
+}
+
 //on this instance, all properties are INT_TYPE, but this could change as new properties are created
 data_type get_property_return_type(figure_property_type type){
     data_type ret;
@@ -35,3 +45,5 @@ data_type get_property_return_type(figure_property_type type){
     }
     return ret;
 }
+
+

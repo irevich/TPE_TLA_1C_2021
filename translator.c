@@ -153,6 +153,7 @@ char * translate_node(node * node_to_translate){
         case PROPERTY_NODE:
             result = translate_property_node((property_node *) node_to_translate);
             break; 
+
     }
     return result;
 }
@@ -291,8 +292,24 @@ char * translate_print_node(print_node * node){
 char * translate_rel_comp_node (rel_comp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
-    char * comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
-    sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    char * comp_string;
+
+    if(is_type_figure(get_node_data_type(node->left_node))){
+        
+        if (strcmp(node->op, "!=") == 0){
+            comp_string = malloc(strlen("!are_the_same_figure(") + 2 *strlen("(figure *)") + strlen(",") + strlen(translated_left_node) + strlen(translated_right_node) + strlen(")") + 1);
+            sprintf(comp_string, "!are_the_same_figure((figure *)%s,(figure *)%s)", translated_left_node, translated_right_node);
+        }
+        else{
+            comp_string = malloc(strlen("are_the_same_figure(") + 2 *strlen("(figure *)") + strlen(",") + strlen(translated_left_node) + strlen(translated_right_node) + strlen(")") + 1);
+            sprintf(comp_string, "are_the_same_figure((figure *)%s,(figure *)%s)", translated_left_node, translated_right_node);
+        }
+    }
+    
+    else{
+        comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
+        sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    }
     free(translated_left_node);
     free(translated_right_node);
     return comp_string;
@@ -427,8 +444,8 @@ void print_initial_functions(){
         \n//Free functions\nvoid free_figure(figure * figure);void free_circle(circle * circle);void free_rectangle(rectangle * rectangle);void free_triangle(triangle * triangle);\
         \n//To string functions\nchar * figure_to_string(figure * figure);char * circle_to_string(circle * circle);char * rectangle_to_string(rectangle * rectangle);char * triangle_to_string(triangle * triangle);\
         \n//Perimeter functions\nint get_perimeter(figure * figure);int get_circle_perimeter (circle * circle);int get_rectangle_perimeter (rectangle * rectangle);int get_triangle_perimeter (triangle * triangle);\
-        \n//Area functions\nint get_area(figure * figure);int get_circle_area (circle * circle);int get_rectangle_area (rectangle * rectangle);int get_triangle_area (triangle * triangle);\n\n");
-
+        \n//Area functions\nint get_area(figure * figure);int get_circle_area (circle * circle);int get_rectangle_area (rectangle * rectangle);int get_triangle_area (triangle * triangle);\n\
+        \n//Figure equals functions\nint are_the_same_figure(struct figure * f1, struct figure * f2);\nint are_the_same_circle(struct circle * c1, struct circle * c2);\nint are_the_same_triangle(struct triangle * t1, struct triangle * t2);\nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2);");
     printf("circle * create_circle(int radius){\ncircle * new_circle = malloc(sizeof(struct circle));\nnew_circle->radius = radius;\nnew_circle->type = CIRCLE_TYPE;\nreturn new_circle;}\n\
         rectangle * create_rectangle(int base, int height){\nrectangle * new_rectangle = malloc(sizeof(struct rectangle));\nnew_rectangle->base = base;\nnew_rectangle->height = height;\nnew_rectangle->type = RECTANGLE_TYPE;return new_rectangle;}\n \
         triangle * create_triangle(int side1, int side2, int side3){\ntriangle * new_triangle = malloc(sizeof(struct triangle));\nnew_triangle->side1 = side1;\nnew_triangle->side2 = side2;\nnew_triangle->side3 = side3;\nnew_triangle->type = TRIANGLE_TYPE;\nreturn new_triangle;}\n");
@@ -453,6 +470,12 @@ void print_initial_functions(){
         int get_rectangle_area (rectangle * rectangle){\nreturn rectangle->base * rectangle->height;\n}\n\
         //Using Heron formula\nint get_triangle_area (triangle * triangle){\ndouble semiperimeter = get_triangle_perimeter(triangle) / 2;\nreturn (int) (sqrt(semiperimeter * (semiperimeter - triangle->side1) * (semiperimeter - triangle->side2) * (semiperimeter - triangle->side3))); \n}\n"
         );
+
+    printf("//Figure equals functions\nint are_the_same_figure(struct figure * f1, struct figure * f2){\nif (f1->type != f2->type) return 0;\nfigure_type figs_type = f1->type;\
+        switch (figs_type) {\ncase CIRCLE_TYPE:\nreturn are_the_same_circle((struct circle *) f1, (struct circle *) f2);case TRIANGLE_TYPE:\nreturn are_the_same_triangle((struct triangle *) f1, (struct triangle *) f2);\
+        case RECTANGLE_TYPE:\nreturn are_the_same_rectangle((struct rectangle *) f1, (struct rectangle *) f2);}return 0;}\nint are_the_same_circle(struct circle * c1, struct circle * c2){\nreturn c1->radius == c2->radius;}\
+        \nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2){return r1->base == r2->base && r1->height == r2->height;}\n\
+        int are_the_same_triangle(struct triangle * t1, struct triangle * t2){return t1->side1 == t2->side1 && t1->side2 == t2->side2 && t1->side3 == t2->side3;}");
 }
 
 
