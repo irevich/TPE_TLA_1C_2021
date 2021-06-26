@@ -63,27 +63,32 @@ void free_declaration_node(declaration_node * node){
     free(node);
 }
 
-assignation_node * create_assignation_node(char * name, node * assigned_node){
+assignation_node * create_assignation_node(node * var_node, node * assigned_node){
+
+    if(get_node_data_type(var_node) != get_node_data_type(assigned_node)){
+        return NULL;
+    }
+
     assignation_node * new_node = malloc(sizeof(assignation_node));
-    new_node->name = malloc(strlen(name) + 1);
-    strcpy(new_node->name, name);
+    new_node->var_node = var_node;
     new_node->type = ASSIGNATION;
     new_node->assigned_node =  assigned_node;
     return new_node;
 }
 
 void free_assignation_node(assignation_node * node){
-    free(node->name);
+    free_node(node->var_node);
     free_node(node->assigned_node);
     free(node);
 }
 
-property_node * create_property_node(char * var_name, figure_property_type property_type) {
+property_node * create_property_node(node * var_node, figure_property_type property_type) {
     
     property_node * new_node = malloc(sizeof(property_node));
     new_node->type = PROPERTY_NODE;
-    new_node->var_name = malloc(strlen(var_name) + 1);
-    strcpy(new_node->var_name,var_name);
+    //new_node->var_name = malloc(strlen(var_name) + 1);
+    //strcpy(new_node->var_name,var_name);
+    new_node->var_node = var_node;
     new_node->property_type = property_type;
     new_node->return_type = get_property_return_type(property_type);
 
@@ -91,7 +96,7 @@ property_node * create_property_node(char * var_name, figure_property_type prope
 }
 
 void free_property_node(property_node * node) {
-    free(node->var_name);
+    free_node(node->var_node);
     free(node);
 }
 

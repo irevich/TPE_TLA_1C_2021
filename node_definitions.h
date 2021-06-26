@@ -73,7 +73,7 @@ typedef struct node_list{
 
 typedef struct property_node{
     node_type type;
-    char * var_name;
+    node * var_node;
     figure_property_type property_type;
     data_type return_type;
 }property_node;
@@ -110,7 +110,7 @@ typedef struct declaration_node{
 
 typedef struct assignation_node{
     node_type type;
-    char * name;
+    node * var_node;
     node * assigned_node;
 }assignation_node; 
 

@@ -14,7 +14,7 @@ constant_string_node * create_constant_string_node(char * value);
 void free_constant_string_node(constant_string_node * string_node);
 declaration_node * create_declaration_node(char * name, data_type type, node * assigned_node);
 void free_declaration_node(declaration_node * node);
-assignation_node * create_assignation_node(char * name, node * assigned_node);
+assignation_node * create_assignation_node(node * var_node, node * assigned_node);
 void free_assignation_node(assignation_node * node);
 exp_node * create_exp_node(char * op, node * left_node, node * right_node);
 void free_exp_node(exp_node * node);
@@ -36,7 +36,7 @@ void free_if_otherwise_node(if_otherwise_node * node);
 while_node * create_while_node(node * cond, node * code);
 void free_while_node(while_node * node);
 
-property_node * create_property_node(char * var_name, figure_property_type property_type);
+property_node * create_property_node(node * var_node, figure_property_type property_type);
 void free_property_node(property_node * node);
 
 function_node * create_function_node(data_type return_type, char * name, node * node_param_header);

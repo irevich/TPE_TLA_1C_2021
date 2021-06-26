@@ -187,11 +187,15 @@ char * translate_assignation_node(assignation_node * assign_node){
     
     char * translated_assigned_node = translate_node(assign_node->assigned_node);
 
-    char * translated_node = malloc(strlen(assign_node->name) + strlen(translated_assigned_node) + strlen(";\n") + strlen("=") + 2* strlen(" ") + 1);
+    char * translated_var_node = translate_node(assign_node->var_node);
+
+    char * translated_node = malloc(strlen(translated_var_node) + strlen(translated_assigned_node) + strlen(";\n") + strlen("=") + 2* strlen(" ") + 1);
     
-    sprintf(translated_node, "%s = %s;\n", assign_node->name, translated_assigned_node);
+    sprintf(translated_node, "%s = %s;\n", translated_var_node, translated_assigned_node);
 
     free(translated_assigned_node);
+
+    free(translated_var_node);
 
     return translated_node;
 }
@@ -354,13 +358,18 @@ char * translate_if_otherwise_node (if_otherwise_node * node){
 }
 
 char * translate_property_node (property_node * node){
+
     char * property_type_name = get_figure_property_name(node->property_type);
 
-    char * translated_node = malloc(strlen(node->var_name) + strlen("->") + strlen(property_type_name) + 1);
+    char * translated_var_node = translate_node(node->var_node);
 
-    sprintf(translated_node, "%s%s%s", node->var_name, "->", property_type_name);
+    char * translated_node = malloc(strlen(translated_var_node) + strlen("->") + strlen(property_type_name) + 1);
+
+    sprintf(translated_node, "%s%s%s", translated_var_node, "->", property_type_name);
     
     free(property_type_name);
+
+    free(translated_var_node);
     
     return translated_node;
 }

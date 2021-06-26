@@ -37,13 +37,13 @@
 
     variable_list_node * find_variable(char * name);
 
-    bool is_figure (variable_list_node * variable);
+    bool is_figure (variable_node * variable);
 
     bool check_node_aritmethic_expression(node * node);
+    
+    bool check_figure_property (node * var_node, figure_property_type property_type);
 
-    bool check_figure_property (char * name, figure_property_type property_type);
-
-    bool figure_has_property(variable_list_node * variable, figure_property_type property_type);
+    bool figure_has_property(variable_node * variable, figure_property_type property_type);
 
     void free_variables();
 
@@ -182,7 +182,8 @@
 %type<node> otherwise_block;
 %type<node> figure_property;
 %type<figure_property_type> property;
-%type<node> func;  
+%type<node> func;
+%type<node> variable;  
 
 
 
@@ -250,7 +251,7 @@
     declaration :   var_type IDENTIFIER ASSIGN param  {                  
                     if(check_variable($2)){
                         char * error_message = malloc(strlen("Error. Variable %s already declared") + strlen($2) + 1);
-                        sprintf(error_message, "Error. Declaration of variable %s with incorrect data type", $2);
+                        sprintf(error_message, "Error. Variable %s already declared", $2);
                         yyerror(NULL, error_message);
                     }
                     create_variable($1, $2);
@@ -270,16 +271,26 @@
                |   TRIANGLE  { $$ = TRIANGLE_TYPE;}
                ;
 
-    assignation :   IDENTIFIER ASSIGN param     {
+    assignation :   variable ASSIGN param   {
+                                                $$ = (node *) create_assignation_node($1, $3);
+                                                if($$ == NULL){
+                                                    char * error_message = malloc(strlen("Error. Assignation of variable %s with incorrect data type\n") + strlen(((variable_node *)($1))->name) + 1);
+                                                    sprintf(error_message, "Error. Assignation of variable %s with incorrect data type", ((variable_node *)($1))->name);
+                                                    yyerror(NULL, error_message);
+                                                }
+                                            }
 
-                    if(!check_variable($1)){
-                        char * error_message = malloc(strlen("Error. Variable %s not declared") + strlen($1) + 1);
-                        sprintf(error_message, "Error. Variable %s not declared", $1);
-                        yyerror(NULL, error_message);
-                    }
-                    $$ = (node *) create_assignation_node($1, $3);
-                    }
+                |   figure_property ASSIGN param    {
+                                                        $$ = (node *) create_assignation_node($1, $3);
+                                                        if($$ == NULL){
+                                                            char * error_message = malloc(strlen("Error. Assignation of variable %s with incorrect data type\n") + strlen((((variable_node *)((property_node *)($1))->var_node))->name) + 1);
+                                                            sprintf(error_message, "Error. Assignation of variable %s with incorrect data type", (((variable_node *)((property_node *)($1))->var_node))->name);
+                                                            yyerror(NULL, error_message);
+                                                        }
+                                                    
+                                                    }
                 ;
+
 
     param       :   exp         {$$ = $1;}
                 |   TEXT        {$$ = (node *) create_constant_string_node($1);}
@@ -331,18 +342,10 @@
                 |   factor                  { $$ = $1; }
                 ;
 
-    factor      :   IDENTIFIER      {
-                                        variable_list_node * variable = find_variable($1);
-                                        if(variable == NULL){
-                                            char * error_message = malloc(strlen("Error. Variable %s not declared") + strlen($1) + 1);
-                                            sprintf(error_message, "Error. Variable %s not declared", $1);
-                                            yyerror(NULL, error_message);
-                                        }
-                                        $$ = (node*)create_variable_node(variable->type, $1);
-                                    }
+    factor      :   variable      {$$ = $1;}
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
                 |   figure_property {$$ =  $1;}
-                |   func            {;}
+                |   func            {$$ = $1;}
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   
@@ -394,24 +397,35 @@
                                                                                             }
             ;
 
-    figure_property :   IDENTIFIER ARROW property   {
-                                                        if(!check_figure_property($1,$3)){
-                                                            char * error_message = malloc(strlen("Error. Variable  not declared or invalid property") + strlen($1) + 1);
-                                                            sprintf(error_message, "Error. Variable %s not declared or invalid property", $1);
-                                                            yyerror(NULL, error_message);
-                                                        }
-                                                        $$ = (node*) create_property_node($1, $3);
-                                                            
+    figure_property :   variable ARROW property {
+                                                    if(!check_figure_property($1,$3)){
+                                                        char * error_message = malloc(strlen("Error. Invalid property\n") + 1);
+                                                        sprintf(error_message, "Error. Invalid property");
+                                                        yyerror(NULL, error_message);
                                                     }
+                                                    $$ = (node*) create_property_node($1, $3);
+                                                            
+                                                }
                     ;
 
-    property        :   RADIUS  {$$ = RADIUS_TYPE;}
-                    |   SIDE_1  {$$ = SIDE_1_TYPE;}
-                    |   SIDE_2  {$$ = SIDE_2_TYPE;}
-                    |   SIDE_3  {$$ = SIDE_3_TYPE;}
-                    |   BASE    {$$ = BASE_TYPE;}
-                    |   HEIGHT  {$$ = HEIGHT_TYPE;}
-                    ;
+    property    :   RADIUS  {$$ = RADIUS_TYPE;}
+                |   SIDE_1  {$$ = SIDE_1_TYPE;}
+                |   SIDE_2  {$$ = SIDE_2_TYPE;}
+                |   SIDE_3  {$$ = SIDE_3_TYPE;}
+                |   BASE    {$$ = BASE_TYPE;}
+                |   HEIGHT  {$$ = HEIGHT_TYPE;}
+                ;
+    
+    variable:   IDENTIFIER  {
+                                variable_list_node * variable = find_variable($1);
+                                if(variable == NULL){
+                                    fprintf(stderr, "Error. Variable %s not declared\n", $1);
+                                    free_variables();
+                                    exit(-1);
+                                }
+                                $$ = (node*)create_variable_node(variable->type, $1);
+                            }
+                ;
 
 %%
 
@@ -422,7 +436,8 @@ int yywrap(){
 }
 
 void yyerror(node_list ** node_list_param, char const * s){
-    fprintf(stderr, "%s, at line %d\n", s, yylineno);
+    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "Line: %d\n", yylineno);
     exit(-1);
 }
 
@@ -451,18 +466,17 @@ bool check_variable(char * name){
     return found; 
 }
 
-bool check_figure_property (char * name, figure_property_type property_type){
-    variable_list_node * variable = find_variable(name);
-    if(variable == NULL)
+bool check_figure_property (node * var_node, figure_property_type property_type){
+    //variable_list_node * variable = find_variable(name);
+    //if(variable == NULL)
+    //    return false;
+    if(!is_figure((variable_node *) var_node))
         return false;
-    if(!is_figure(variable))
-        return false;
-    return figure_has_property(variable,property_type);
-    
+    return figure_has_property((variable_node *) var_node,property_type); 
 }
 
-bool is_figure (variable_list_node * variable){
-    switch(variable->type){
+bool is_figure (variable_node * variable){
+    switch(variable->variable_type){
         case CIRCLE_TYPE:
         case RECTANGLE_TYPE:
         case TRIANGLE_TYPE:
@@ -473,8 +487,8 @@ bool is_figure (variable_list_node * variable){
     return false;
 }
 
-bool figure_has_property(variable_list_node * variable, figure_property_type property_type){
-    switch(variable->type){
+bool figure_has_property(variable_node * variable, figure_property_type property_type){
+    switch(variable->variable_type){
         case CIRCLE_TYPE:
             return property_type == RADIUS_TYPE;
         case RECTANGLE_TYPE:
@@ -526,9 +540,8 @@ bool check_parameter_type(char* function_name, data_type type, int param_index){
         i++;
     }
 
-    data_type expected = functions_list[i]->params_type[param_index];
-
     if(i < STANDARD_FUNCTIONS && param_index < functions_list[i]->total_params){
+        data_type expected = functions_list[i]->params_type[param_index];
         if(expected == type || (expected == FIGURE_TYPE && (type == CIRCLE_TYPE || type == RECTANGLE_TYPE || type == TRIANGLE_TYPE)))
             return true;
     }
