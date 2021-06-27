@@ -10,20 +10,20 @@
                 | "print" "(" <param> ")" ";"
                 | "read_num" "(" <variable> ")" ";"
 
-<if_block>::== "if" "("  <comp> ")" "{" <code> "}" <otherwise_block>
+<if_block>::= "if" "("  <comp> ")" "{" <code> "}" <otherwise_block>
 
-<otherwise_block>::== "otherwise" "{" <code> "}"
-                 | %empty
+<otherwise_block>::= "otherwise" "{" <code> "}"
+                 | lambda
 
-<while_block>::== "repeat while" "(" <comp> ")" "{" <code> "}"
+<while_block>::= "repeat while" "(" <comp> ")" "{" <code> "}"
 
-<comp>::== <comp> "or" <comp_term>
+<comp>::= <comp> "or" <comp_term>
         | <comp_term>
 
-<comp_term>::== <comp_term> "and" <comp_factor>
+<comp_term>::= <comp_term> "and" <comp_factor>
             | <comp_factor>
 
-<comp_factor>::== <exp> <or> <exp>
+<comp_factor>::= <exp> <or> <exp>
              | "(" <comp> ")"
 
 <or>    ::= "<" 
@@ -33,7 +33,7 @@
         | "eq"
         | "not_eq"
 
-<declaration>::== <var_type> [a-zA-Z]([a-zA-Z]|[0-9]+|[_])* "=" <param>
+<declaration>::= <var_type> [a-zA-Z]([a-zA-Z]|[0-9]+|[_])* "=" <param>
 
 <var_type>    ::= "int"
                 | "string"
