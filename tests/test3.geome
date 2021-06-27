@@ -1,0 +1,185 @@
+start
+
+string name_circle_1 = "Circle 1";
+
+string name_circle_2 = "Circle 2";
+
+string name_rectangle_1 = "Rectangle 1";
+
+string name_rectangle_2 = "Rectangle 2";
+
+string name_triangle_1 = "Triangle 1";
+
+string name_triangle_2 = "Triangle 2";
+
+circle my_circle = create_circle(20);
+
+circle my_circle2 = create_circle(40);
+
+rectangle my_rectangle = create_rectangle(7,19);
+
+rectangle my_rectangle2 = create_rectangle(7,19);
+
+triangle my_triangle = create_triangle(8,9,20);
+
+triangle my_triangle2 = create_triangle(8,7,23);
+
+print("Created figures :");
+
+print("\n");
+
+print("\n");
+
+print(name_circle_1);
+
+print(" : ");
+
+print(my_circle);
+
+print("\n");
+
+print(name_circle_2);
+
+print(" : ");
+
+print(my_circle2);
+
+print("\n");
+
+print(name_rectangle_1);
+
+print(" : ");
+
+print(my_rectangle);
+
+print("\n");
+
+print(name_rectangle_2);
+
+print(" : ");
+
+print(my_rectangle2);
+
+print("\n");
+
+print(name_triangle_1);
+
+print(" : ");
+
+print(my_triangle);
+
+print("\n");
+
+print(name_triangle_2);
+
+print(" : ");
+
+print(my_triangle2);
+
+print("\n");
+
+print("\n");
+
+print("Comparing the circles : ");
+
+if( my_circle eq my_circle2){
+    print("Circles are equals");
+}
+otherwise{
+    print("Circles are not equals");
+}
+
+print("\n");
+
+print("\n");
+
+print("Comparing the rectangles : ");
+
+if(my_rectangle eq my_rectangle2){
+    print("Rectangles are equals");
+}
+
+print("\n");
+
+print("\n");
+
+print("Comparing the triangles : ");
+
+if(my_triangle not_eq my_triangle2){
+    print("Triangles are not equals");
+}
+otherwise{
+    print("Triangles are equals");
+}
+
+print("\n");
+
+print("\n");
+
+print("Circle 2 old radius : ");
+
+print(my_circle2->radius);
+
+print("\n");
+
+my_circle2 = my_circle;
+
+print("Circle 2 new radius : ");
+
+print(my_circle2->radius);
+
+print("\n");
+
+print("Comparing again the circles : ");
+
+if(my_circle eq my_circle2){
+    print("Now circles are equals");
+}
+
+print("\n");
+
+print("\n");
+
+print("Triangle 2 old second side : ");
+
+print(my_triangle2->side_2);
+
+print("\n");
+
+my_triangle2->side_2 = my_triangle2->side_2 + 2;
+
+print("Triangle 2 new second side : ");
+
+print(my_triangle2->side_2);
+
+print("\n");
+
+print("Triangle 1 old third side : ");
+
+print(my_triangle->side_3);
+
+print("\n");
+
+my_triangle->side_3 = my_triangle->side_3 + 3;
+
+print("Triangle 1 new third side : ");
+
+print(my_triangle->side_3);
+
+print("\n");
+
+print("Comparing again the triangles : ");
+
+if(my_triangle not_eq my_triangle2){
+    print("Now triangles are not equals");
+}
+otherwise{
+    print("Now triangles are equals");
+}
+
+print("\n");
+
+print("\n");
+
+
+end

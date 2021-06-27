@@ -1,0 +1,79 @@
+start
+
+int circle_radius = 15;
+
+circle my_circle = create_circle(circle_radius);
+
+int rec_base = 10;
+
+int rec_height = 13;
+
+rectangle my_rectangle = create_rectangle(rec_base,rec_height);
+
+int triangle_side_1 = 20;
+
+int triangle_side_2 = 20;
+
+int triangle_side_3 = 20;
+
+triangle my_triangle = create_triangle(triangle_side_1,triangle_side_2, triangle_side_3);
+
+print("Created figures :");
+
+print("\n");
+
+print("\n");
+
+print(my_triangle);
+
+print("\n");
+
+print(my_rectangle);
+
+print("\n");
+
+print(my_circle);
+
+print("\n");
+
+print("\n");
+
+print("Checking if one of triangle's sides is greater or equals than the circle's radius, and if rectangle's base is lower than rectangle's height" );
+
+print("\n");
+
+if( (my_triangle->side_1 >= my_circle->radius or my_triangle->side_2 >= my_circle->radius or my_triangle->side_3 >= my_circle->radius) and my_rectangle->base < my_rectangle->height){
+    print("Yes, one of triangle's sides is greater or equals than the circle's radius, and rectangle's base is lower than rectangle's height" );
+}
+
+print("\n");
+
+print("\n");
+
+print("Increasing circle's radius from ");
+
+print(my_circle->radius);
+
+print(" to ");
+
+print(my_circle->radius + 10);
+
+print("\n");
+
+print("\n");
+
+int new_radius = my_circle->radius + 10;
+
+int iteration_num = 0;
+
+repeat while( my_circle->radius < new_radius ){
+    my_circle->radius = my_circle->radius + 1;
+    iteration_num = iteration_num + 1;
+    print("Iteration ");
+    print(iteration_num);
+    print(" - Circle's radius : ");
+    print(my_circle->radius);
+    print("\n");
+}
+
+end

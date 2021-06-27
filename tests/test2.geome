@@ -1,0 +1,105 @@
+start
+
+int circle_radius = 32;
+
+circle my_circle = create_circle(circle_radius);
+
+int rec_base = 30;
+
+int rec_height = 45;
+
+rectangle my_rectangle = create_rectangle(rec_base,rec_height);
+
+int triangle_side_1 = 30;
+
+int triangle_side_2 = 25;
+
+int triangle_side_3 = 49;
+
+triangle my_triangle = create_triangle(triangle_side_1,triangle_side_2, triangle_side_3);
+
+print("Created figures :");
+
+print("\n");
+
+print("\n");
+
+print(my_triangle);
+
+print("\n");
+
+print(my_rectangle);
+
+print("\n");
+
+print(my_circle);
+
+print("\n");
+
+print("\n");
+
+int triangle_perimeter = get_perimeter(my_triangle);
+
+int rectangle_perimeter = get_perimeter(my_rectangle);
+
+int circle_perimeter = get_perimeter(my_circle);
+
+int triangle_area = get_area(my_triangle);
+
+int rectangle_area = get_area(my_rectangle);
+
+int circle_area = get_area(my_circle);
+
+print("Perimeters : ");
+
+print("\n");
+
+print("\n");
+
+print("Triangle perimeter : ");
+
+print(triangle_perimeter);
+
+print("\n");
+
+print("Rectangle perimeter : ");
+
+print(rectangle_perimeter);
+
+print("\n");
+
+print("Circle perimeter : ");
+
+print(circle_perimeter);
+
+print("\n");
+
+print("\n");
+
+print("Areas : ");
+
+print("\n");
+
+print("\n");
+
+print("Triangle area : ");
+
+print(triangle_area);
+
+print("\n");
+
+print("Rectangle area : ");
+
+print(rectangle_area);
+
+print("\n");
+
+print("Circle area : ");
+
+print(circle_area);
+
+print("\n");
+
+
+
+end

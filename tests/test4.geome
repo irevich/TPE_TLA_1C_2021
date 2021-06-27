@@ -1,0 +1,75 @@
+start
+
+int num = (3 + 1) * 2;
+
+string test_title = "Factorial test";
+
+string factorial_title = "We are going to calculte the factorial of  ";
+
+string positive_checking = "First, we are going to check if the number is positive";
+
+string number_is_positive = "Yes, number is positive, we can go on :) ";
+
+string number_is_negative = "No, number is negative, we can not calculate the factorial :( ";
+
+string factorial_symbol = "!";
+
+string equals_symbol = " = ";
+
+string new_line = "\n";
+
+string result_text = "Result : ";
+
+int result = 1;
+
+
+print(test_title);
+
+print(new_line);
+
+print(new_line);
+
+print(positive_checking);
+
+print(new_line);
+
+if( num >= 0){
+    print(number_is_positive);
+    
+    print(new_line);
+
+    print(new_line);
+
+    print(factorial_title);
+
+    print(num);
+
+    print(new_line);
+
+    print(new_line);
+
+    int aux = num;
+
+    repeat while( aux > 1){
+        result = result * aux;
+        aux = aux - 1;
+    }
+
+    print(result_text);
+
+    print(num);
+
+    print(factorial_symbol);
+
+    print(equals_symbol);
+
+    print(result);
+
+}
+otherwise{
+    print(number_is_negative);
+}
+
+print(new_line);
+
+end

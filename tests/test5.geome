@@ -1,0 +1,93 @@
+start
+
+int num = 0;
+
+print("Insert radius for a new circle");
+
+print("\n");
+
+read_num(num);
+
+print("\n");
+
+if(num < 0 ){
+    print("Radius can not be negative :( ");
+}
+otherwise{
+    circle my_circle = create_circle(num);
+    print("Circle created : ");
+    print(my_circle);
+    print("\n");
+    print("\n");
+    print("Insert base for a new rectangle");
+
+    print("\n");
+    
+    int base_property = 0;
+    read_num(base_property);
+
+    print("\n");
+
+    if(base_property < 0 ){
+        print("Base can not be negative :( ");
+    }
+    otherwise{
+        print("\n");
+        print("\n");
+        int height_property = 0;
+        print("Insert height for a new rectangle");
+
+        print("\n");
+    
+        read_num(height_property);
+
+        print("\n");
+
+        if(height_property < 0 ){
+            print("Height can not be negative :( ");
+        }
+        otherwise{
+            print("\n");
+            print("\n");
+            rectangle my_rectangle = create_rectangle(base_property,height_property);
+            print("Rectangle created : ");
+            print(my_rectangle);
+            print("\n");
+            print("\n");
+            print("We are going to check if one of figure's perimeter is greater or equals than the average of perimeters");
+            print("\n");
+            print("\n");
+            if(get_perimeter(my_circle) >= (get_perimeter(my_circle) + get_perimeter(my_rectangle)) / 2 ){
+                string result = "The circle's perimeter is greater than the average with perimeter : ";
+                print(result);
+                print(get_perimeter(my_circle));
+                print("\n");
+                print("Perimeters average : ");
+                print((get_perimeter(my_circle) + get_perimeter(my_rectangle)) / 2);
+                print("\n");
+            }
+            otherwise{
+                if(get_perimeter(my_rectangle) >= (get_perimeter(my_circle) + get_perimeter(my_rectangle)) / 2 ){
+                    string result = "The rectangle's perimeter is greater than the average with perimeter : ";
+                    print(result);
+                    print(get_perimeter(my_rectangle));
+                    print("\n");
+                    print("Perimeters average : ");
+                    print((get_perimeter(my_circle) + get_perimeter(my_rectangle)) / 2);
+                    print("\n");
+                }
+                otherwise{
+                    string result = "None of figure's perimeters are greater than the average";
+                    print("\n");
+                    print("Perimeters average : ");
+                    print((get_perimeter(my_circle) + get_perimeter(my_rectangle)) / 2);
+                    print("\n");
+                }
+        }
+    }
+  }
+}
+
+print("\n");
+
+end
