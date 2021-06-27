@@ -27,6 +27,10 @@ INSTRUCCIONES DE COMPILACION Y EJECUCION DE LOS PROGRAMAS DE PRUEBA (test1.geome
 
 Para compilar y ejecutar los casos de prueba otorgados que se encuentran en la carpeta "tests", se deben ejecutar las siguientes instrucciones adentro de la carpeta del repositorio y en el mismo directorio que el Makefile :
 
+mkdir generated_tests (En caso de no tenerla, crear esta carpeta para guardar los .c generados por los tests)
+
+mkdir executable_tests (En caso de no tenerla, crear esta carpeta para guardar los ejecutables generados a partir de los .c recientemente mencionados)
+
 make clean_test
 
 make test (Para esta instruccion se requiere previamente haber realizado un "make all")
@@ -64,7 +68,7 @@ test4.geome :
 
 test5.geome :
 
-    - Se pide el ingreso por entrada estandar de un numero para que sea el radio de un circulo. Si el numero es negativo corta el test, sino se realiza el mismo proceso para la base y la altura de un rectangulo.
+    - Se pide el ingreso por entrada estandar de un numero para que sea el radio de un circulo. Si el numero es negativo corta el test, sino se realiza el mismo proceso para la base y la altura de un rectangulo ( Tener en cuenta que en caso de ingresarse un dato no numerico, como las variables donde se almacenan los datos ingresados estan inicializadas con 0, estas permaneceran con el mismo valor y por ende el test terminara como si se hubiera ingresado un numero negativo )
     - Con los datos correctos, se crean el circulo y el rectangulo correspondientes, y se imprimen sus propiedades.
     - Mediante bloques condicionales anidados, se checkea si el perimetro de alguna de las figuras es mayor o igual al promedio de los perimetros. De ser asi, se imprime que figura fue con el perimetro correspondiente y el promedio, y sino se imprime que ninguna de las figuras cumple dicha condicion y se imprime el promedio correspondiente.
 

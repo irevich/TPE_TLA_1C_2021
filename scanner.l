@@ -69,7 +69,7 @@ string \"[^\"]*\"
 {digit}+                       {yylval.num = atoi(yytext); return NUM;}
 
 \n              {yylineno++;}
-[ \t\r]+		;		                //Ignore white space, syntax error for any other word we don't support
+[ \t\r]+		;		                
 .               return SYNTAX_ERROR;
 %%
 
