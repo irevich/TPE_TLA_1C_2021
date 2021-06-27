@@ -20,6 +20,7 @@ typedef enum{
     IF_OTHERWISE,
     WHILE_NODE,
     FUNCTION_NODE,
+    READ_NUM_NODE,
 }node_type;
 
 typedef enum{
@@ -131,6 +132,11 @@ typedef struct print_node{
     node_type type;
     node * content_node;   
 }print_node;
+
+typedef struct read_num_node{ 
+    node_type type;
+    node * content_node;   
+}read_num_node;
 
 typedef struct rel_comp_node{
     node_type type;

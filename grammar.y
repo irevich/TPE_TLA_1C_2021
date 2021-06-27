@@ -159,6 +159,7 @@
 //General functions tokens
 
 %token PRINT;
+%token READ_NUM;
 
 //Text token
 %token<string> TEXT;
@@ -224,6 +225,14 @@
                 |   if_block                    {;}
                 |   while_block                 {;}
                 |   PRINT OPEN_PARENTHESES param CLOSE_PARENTHESES SEMICOLON     {$$ = (node*) create_print_node($3);}
+                |   READ_NUM OPEN_PARENTHESES variable CLOSE_PARENTHESES SEMICOLON  {   if(get_node_data_type($3) != INT_TYPE){
+                                                                                            char * error_message = malloc(strlen("Error. Invalid variable data type on read_num") + 1);
+                                                                                            sprintf(error_message, "Error. Invalid variable data type on read_num");
+                                                                                            yyerror(NULL, error_message);
+                                                                                        }
+                                                                                        
+                                                                                        $$ = (node*) create_read_num_node($3);                                                                                      
+                                                                                    }
                 ;
 
     if_block    :   IF {push_scope();} OPEN_PARENTHESES comp CLOSE_PARENTHESES OPEN_BRACES code CLOSE_BRACES {pop_scope();} otherwise_block    {  
@@ -381,8 +390,7 @@
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
                 |   figure_property {$$ =  $1;}
                 |   func            {$$ = $1;}
-                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { $$ = (node *) create_parentheses_exp_node($2);
-                                                            }
+                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { $$ = (node *) create_parentheses_exp_node($2);}
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   

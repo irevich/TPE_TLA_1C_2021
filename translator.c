@@ -90,12 +90,10 @@ int get_cant_digits(int num){
 
 char * translate_node(node * node_to_translate){
     char * result = NULL;
-    //printf("Por entrar al switch de translate node\n");
+
     switch(node_to_translate->type){
         case VARIABLE:    
-            //printf("Por entrar al translate de variable node\n");
             result = translate_variable_node((variable_node *) node_to_translate);
-            //printf("Hecho el translate de variable node\n");
             break;
 
         case CONSTANT_INT:
@@ -156,6 +154,10 @@ char * translate_node(node * node_to_translate){
 
         case PROPERTY_NODE:
             result = translate_property_node((property_node *) node_to_translate);
+            break; 
+
+        case READ_NUM_NODE:
+            result = translate_read_num_node((read_num_node *) node_to_translate);
             break; 
 
     }
@@ -440,6 +442,24 @@ char * translate_while_node (while_node * node){
     return string;
 }
 
+char * translate_read_num_node(read_num_node * node){
+    char * string = NULL;
+
+    char * translated_content_node = translate_node(node->content_node);
+
+    char * before = NULL;
+
+    before = "scanf(\"%d\", &";
+    
+    char * after = ");\n";
+    
+    string = malloc(strlen(before) + strlen(translated_content_node) + strlen(after) + 1);
+    sprintf(string, "%s%s%s", before, translated_content_node, after);
+    free(translated_content_node);
+    
+    return string;
+}
+
 void print_initial_functions(){
     
     printf("#define TO_STRING_INITIAL_SIZE 200\n\
@@ -624,12 +644,8 @@ void print_initial_functions(){
 
 
 char * translate_to_c(node_list * first_node){
-
-    //printf("Por hacer la translation de C\n");
     
     char * translation = translate_node((node *)first_node);
-
-    //printf("Hice la translation de C\n");
 
     char * return_value = malloc(strlen(translation) + 1);
 

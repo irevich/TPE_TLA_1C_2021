@@ -167,6 +167,18 @@ void free_print_node(print_node * node){
     free(node);
 }
 
+read_num_node * create_read_num_node(node * content_node){
+    read_num_node * new_node = malloc(sizeof(read_num_node));
+    new_node->type = READ_NUM_NODE;
+    new_node->content_node = content_node;
+    return new_node;
+}
+
+void free_read_num_node(read_num_node * node){
+    free_node(node->content_node);
+    free(node);
+}
+
 node_list * create_node_list(node * node, node_type type){
     //printf("Creando node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
@@ -346,6 +358,10 @@ void free_node(node * node){
 
         case FUNCTION_NODE:
             free_function_node((function_node *) node);
+            break;
+
+        case READ_NUM_NODE:
+            free_read_num_node((read_num_node *) node);
             break; 
             
     }

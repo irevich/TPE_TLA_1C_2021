@@ -45,4 +45,7 @@ void free_function_node(function_node * node);
 parentheses_exp_node * create_parentheses_exp_node(node * exp_node);
 void free_parentheses_exp_node(parentheses_exp_node * node);
 
+read_num_node * create_read_num_node(node * content_node);
+void free_read_num_node(read_num_node * node);
+
 #endif

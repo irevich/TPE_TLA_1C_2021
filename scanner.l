@@ -27,6 +27,7 @@ string \"[^\"]*\"
 "if"                            return IF;
 "otherwise"                     return OTHERWISE;
 "print"                         return PRINT;
+"read_num"                        return READ_NUM;
 "("				                return OPEN_PARENTHESES;
 ")"				                return CLOSE_PARENTHESES;
 "{"				                return OPEN_BRACES;

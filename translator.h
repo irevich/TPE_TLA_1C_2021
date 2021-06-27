@@ -44,6 +44,8 @@ char * translate_function_node (function_node * node);
 
 char * translate_parentheses_exp_node(parentheses_exp_node * node);
 
+char * translate_read_num_node(read_num_node * node);
+
 void print_initial_functions();
 
 #endif
