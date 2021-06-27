@@ -21,7 +21,7 @@ char * get_data_type(data_type type){
             break;
         case TRIANGLE_TYPE:
             result = malloc(strlen("triangle *") + 1);
-            strcpy(result, "traingle *");
+            strcpy(result, "triangle *");
             break;
         default:
             break;    
@@ -37,17 +37,17 @@ char * get_figure_property_name(figure_property_type type){
             strcpy(property_name,"radius");
             break;
         case SIDE_1_TYPE:
-            property_name = malloc(strlen("side_1")+1);
-            strcpy(property_name,"side_1");
+            property_name = malloc(strlen("side1")+1);
+            strcpy(property_name,"side1");
             break;
         case SIDE_2_TYPE:
-            property_name = malloc(strlen("side_2")+1);
-            strcpy(property_name,"side_2");
+            property_name = malloc(strlen("side2")+1);
+            strcpy(property_name,"side2");
             break;
 
         case SIDE_3_TYPE:
-            property_name = malloc(strlen("side_3")+1);
-            strcpy(property_name,"side_3");
+            property_name = malloc(strlen("side3")+1);
+            strcpy(property_name,"side3");
             break;
 
         case BASE_TYPE:
@@ -442,46 +442,184 @@ char * translate_while_node (while_node * node){
 
 void print_initial_functions(){
     
-    printf("#define TO_STRING_INITIAL_SIZE 200\ntypedef enum{CIRCLE_TYPE,RECTANGLE_TYPE,TRIANGLE_TYPE,}figure_type;\ntypedef struct figure{figure_type type;}figure;\n\
-        typedef struct circle{figure_type type;int radius;}circle;\ntypedef struct rectangle{figure_type type;int base;int height;}rectangle;\ntypedef struct triangle{figure_type type;\
-        int side1;int side2;int side3;}triangle;");
+    printf("#define TO_STRING_INITIAL_SIZE 200\n\
+        typedef enum{CIRCLE_TYPE,RECTANGLE_TYPE,TRIANGLE_TYPE,}figure_type;\n\
+        typedef struct figure{figure_type type;}figure;\n\
+        typedef struct circle{figure_type type;int radius;}circle;\n\
+        typedef struct rectangle{figure_type type;int base;int height;}rectangle;\n\
+        typedef struct triangle{figure_type type;\
+        int side1;int side2;int side3;\
+        }triangle;");
 
-    printf("\n\n//Create functions\ncircle * create_circle(int radius);rectangle * create_rectangle(int base, int height);triangle * create_triangle(int side1, int side2, int side3);\
-        \n//Free functions\nvoid free_figure(figure * figure);void free_circle(circle * circle);void free_rectangle(rectangle * rectangle);void free_triangle(triangle * triangle);\
-        \n//To string functions\nchar * figure_to_string(figure * figure);char * circle_to_string(circle * circle);char * rectangle_to_string(rectangle * rectangle);char * triangle_to_string(triangle * triangle);\
-        \n//Perimeter functions\nint get_perimeter(figure * figure);int get_circle_perimeter (circle * circle);int get_rectangle_perimeter (rectangle * rectangle);int get_triangle_perimeter (triangle * triangle);\
-        \n//Area functions\nint get_area(figure * figure);int get_circle_area (circle * circle);int get_rectangle_area (rectangle * rectangle);int get_triangle_area (triangle * triangle);\n\
-        \n//Figure equals functions\nint are_the_same_figure(struct figure * f1, struct figure * f2);\nint are_the_same_circle(struct circle * c1, struct circle * c2);\nint are_the_same_triangle(struct triangle * t1, struct triangle * t2);\nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2);");
-    printf("circle * create_circle(int radius){\ncircle * new_circle = malloc(sizeof(struct circle));\nnew_circle->radius = radius;\nnew_circle->type = CIRCLE_TYPE;\nreturn new_circle;}\n\
-        rectangle * create_rectangle(int base, int height){\nrectangle * new_rectangle = malloc(sizeof(struct rectangle));\nnew_rectangle->base = base;\nnew_rectangle->height = height;\nnew_rectangle->type = RECTANGLE_TYPE;return new_rectangle;}\n \
-        triangle * create_triangle(int side1, int side2, int side3){\ntriangle * new_triangle = malloc(sizeof(struct triangle));\nnew_triangle->side1 = side1;\nnew_triangle->side2 = side2;\nnew_triangle->side3 = side3;\nnew_triangle->type = TRIANGLE_TYPE;\nreturn new_triangle;}\n");
+    printf("typedef struct pointer_to_free_struct{\n\
+                void * pointer;\n\
+                struct pointer_to_free_struct * next;\n\
+            }pointer_to_free_struct;\n\
+    pointer_to_free_struct * pointer_to_free_header = NULL;\n\
+    pointer_to_free_struct * pointer_to_free_current;\n\
+    void add_pointer_to_free(void * pointer_to_free);\n\
+    void free_alloqued_pointers();\n\n\
+    void add_pointer_to_free(void * pointer_to_free){\n\
+        if (pointer_to_free_header == NULL){\n\
+            pointer_to_free_header = malloc(sizeof(pointer_to_free_struct));\n\
+            pointer_to_free_header->pointer = pointer_to_free;\n\
+            pointer_to_free_header->next = NULL;\n\
+            \npointer_to_free_current = pointer_to_free_header;\n\
+        \n}else{\n\
+            pointer_to_free_struct * new_pointer_to_free = malloc(sizeof(pointer_to_free_struct));\
+            pointer_to_free_current->next = new_pointer_to_free;\
+            new_pointer_to_free->pointer = pointer_to_free;new_pointer_to_free->next = NULL;\
+            pointer_to_free_current = new_pointer_to_free;}\n\
+        }\n\
+        void free_alloqued_pointers(){\n\
+        pointer_to_free_struct * curr = pointer_to_free_header;\n\
+        while (curr != NULL){\n\
+            pointer_to_free_struct * aux = curr->next;\n\
+            free(curr->pointer);free(curr);curr = aux;\n\
+        }\n}\
+        ");
+
+    printf("\n\n//Create functions\n\
+        circle * create_circle(int radius);rectangle * create_rectangle(int base, int height);triangle * create_triangle(int side1, int side2, int side3);\
+        \n//Free functions\n\
+        void free_figure(figure * figure);void free_circle(circle * circle);void free_rectangle(rectangle * rectangle);void free_triangle(triangle * triangle);\
+        \n//To string functions\n\
+        char * figure_to_string(figure * figure);char * circle_to_string(circle * circle);char * rectangle_to_string(rectangle * rectangle);char * triangle_to_string(triangle * triangle);\
+        \n//Perimeter functions\n\
+        int get_perimeter(figure * figure);int get_circle_perimeter (circle * circle);int get_rectangle_perimeter (rectangle * rectangle);int get_triangle_perimeter (triangle * triangle);\
+        \n//Area functions\n\
+        int get_area(figure * figure);int get_circle_area (circle * circle);int get_rectangle_area (rectangle * rectangle);int get_triangle_area (triangle * triangle);\n\
+        \n//Figure equals functions\n\
+        int are_the_same_figure(struct figure * f1, struct figure * f2);\nint are_the_same_circle(struct circle * c1, struct circle * c2);\nint are_the_same_triangle(struct triangle * t1, struct triangle * t2);\nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2);");
     
-    printf("//Free functions\nvoid free_figure(figure * figure){\nswitch(figure->type){\ncase CIRCLE_TYPE:free_circle((circle *)figure);break;\ncase RECTANGLE_TYPE:free_rectangle((rectangle*)figure);break;\n \
-        case TRIANGLE_TYPE:free_triangle((triangle*)figure);break;}}\nvoid free_circle(circle * circle){free(circle);}\nvoid free_rectangle(rectangle * rectangle){free(rectangle);}\nvoid free_triangle(triangle * triangle){free(triangle);}\n");
+    printf("//Create functions\n\n\
+        circle * create_circle(int radius){\n\
+        circle * new_circle = malloc(sizeof(struct circle));\n\
+        new_circle->radius = radius;\n\
+        new_circle->type = CIRCLE_TYPE;\n\
+        add_pointer_to_free((void *) new_circle);\n\
+        return new_circle;}\n\
+        \
+        rectangle * create_rectangle(int base, int height){\n\
+        rectangle * new_rectangle = malloc(sizeof(struct rectangle));\n\
+        new_rectangle->base = base;\n\
+        new_rectangle->height = height;\n\
+        new_rectangle->type = RECTANGLE_TYPE;\n\
+        add_pointer_to_free((void *) new_rectangle);\n\
+        return new_rectangle;}\n\
+        \
+        triangle * create_triangle(int side1, int side2, int side3){\n\
+        triangle * new_triangle = malloc(sizeof(struct triangle));\n\
+        new_triangle->side1 = side1;\n\
+        new_triangle->side2 = side2;\n\
+        new_triangle->side3 = side3;\n\
+        new_triangle->type = TRIANGLE_TYPE;\n\
+        add_pointer_to_free((void *) new_triangle);\n\
+        return new_triangle;}\n");
+    
+    printf("//Free functions\n\
+        void free_figure(figure * figure){\n\
+        switch(figure->type){\n\
+            case CIRCLE_TYPE:\n\
+            free_circle((circle *)figure);break;\n\
+            case RECTANGLE_TYPE:\n\
+            free_rectangle((rectangle*)figure);break;\n\
+            case TRIANGLE_TYPE:\n\
+            free_triangle((triangle*)figure);break;}}\n\
+        \n\
+        void free_circle(circle * circle){free(circle);}\n\
+        void free_rectangle(rectangle * rectangle){free(rectangle);}\n\
+        void free_triangle(triangle * triangle){free(triangle);}\n");
 
-    printf("//To string functions\nchar * figure_to_string(figure * figure){\nswitch(figure->type){\ncase CIRCLE_TYPE:return circle_to_string((circle *)figure);\ncase RECTANGLE_TYPE:return rectangle_to_string((rectangle*)figure);\ncase TRIANGLE_TYPE:  \
-        return triangle_to_string((triangle*)figure);}\nreturn NULL;}\nchar * circle_to_string(circle * circle){char * string = malloc(TO_STRING_INITIAL_SIZE);sprintf(string, \"Circle with radius : %%d\", circle->radius);string = realloc(string, strlen(string) + 1);  \
-        return string;}\nchar * rectangle_to_string(rectangle * rectangle){\nchar * string = malloc(TO_STRING_INITIAL_SIZE);sprintf(string, \"Rectangle with base : %%d and height : %%d\", rectangle->base, rectangle->height);string = realloc(string, strlen(string) + 1); \
-        return string;}\nchar * triangle_to_string(triangle * triangle){\nchar * string = malloc(TO_STRING_INITIAL_SIZE);sprintf(string, \"Triangle with first side : %%d, second side : %%d and third side : %%d\", triangle->side1, triangle->side2, triangle->side3); \
-        string = realloc(string, strlen(string) + 1);return string;}\n");
+    printf("//To string functions\n\n\
+        char * figure_to_string(figure * figure){\n\
+        switch(figure->type){\n\
+            case CIRCLE_TYPE:\n\
+            return circle_to_string((circle *)figure);\n\
+            case RECTANGLE_TYPE:\n\
+            return rectangle_to_string((rectangle*)figure);\n\
+            case TRIANGLE_TYPE:\n\
+            return triangle_to_string((triangle*)figure);}\n\
+        return NULL;}\n\
+        \n\
+        char * circle_to_string(circle * circle){\n\
+        char * string = malloc(TO_STRING_INITIAL_SIZE);\n\
+        sprintf(string, \"Circle with radius : %%d\", circle->radius);\n\
+        string = realloc(string, strlen(string) + 1);\n\
+        add_pointer_to_free((void *) string);\n\
+        return string;}\n\
+        \n\
+        char * rectangle_to_string(rectangle * rectangle){\n\
+        char * string = malloc(TO_STRING_INITIAL_SIZE);\n\
+        sprintf(string, \"Rectangle with base : %%d and height : %%d\", rectangle->base, rectangle->height);\n\
+        string = realloc(string, strlen(string) + 1);\n\
+        add_pointer_to_free((void *) string);return string;}\n\
+        \n\
+        char * triangle_to_string(triangle * triangle){\n\
+        char * string = malloc(TO_STRING_INITIAL_SIZE);\n\
+        sprintf(string, \"Triangle with first side : %%d, second side : %%d and third side : %%d\", triangle->side1, triangle->side2, triangle->side3);\n\
+        string = realloc(string, strlen(string) + 1);\n\
+        add_pointer_to_free((void *) string);\n\
+        return string;}\n");
 
-    printf("//Perimeter functions\nint get_perimeter(figure * figure){\nswitch(figure->type){\ncase CIRCLE_TYPE:\nreturn get_circle_perimeter((circle *)figure);\ncase RECTANGLE_TYPE:\nreturn get_rectangle_perimeter((rectangle*)figure);\ncase TRIANGLE_TYPE:\nreturn get_triangle_perimeter((triangle*)figure);\n}\nreturn -1;\n}\n\
+    printf("//Perimeter functions\n\
+        int get_perimeter(figure * figure){\n\
+        switch(figure->type){\n\
+            case CIRCLE_TYPE:\n\
+            return get_circle_perimeter((circle *)figure);\n\
+            case RECTANGLE_TYPE:\n\
+            return get_rectangle_perimeter((rectangle*)figure);\n\
+            case TRIANGLE_TYPE:\n\
+            return get_triangle_perimeter((triangle*)figure);\n\
+        }\n\
+        return -1;\n}\n\
+        \
         int get_circle_perimeter (circle * circle){\nreturn (int) (circle->radius * 2 * M_PI);\n}\n\
         int get_rectangle_perimeter (rectangle * rectangle){\nreturn rectangle->base * 2 + rectangle->height * 2;\n}\n\
         int get_triangle_perimeter (triangle * triangle){\nreturn triangle->side1 + triangle->side2 + triangle->side3;\n}\n");
 
-    printf("//Area functions\nint get_area(figure * figure){\
-        switch(figure->type){\ncase CIRCLE_TYPE:\nreturn get_circle_area((circle *)figure);\ncase RECTANGLE_TYPE:\nreturn get_rectangle_area((rectangle*)figure);\ncase TRIANGLE_TYPE:\nreturn get_triangle_area((triangle*)figure);\n}\nreturn -1;\n}\n\
-        int get_circle_area (circle * circle){\nreturn (int) (pow(circle->radius, 2) * M_PI);\n}\
-        int get_rectangle_area (rectangle * rectangle){\nreturn rectangle->base * rectangle->height;\n}\n\
-        //Using Heron formula\nint get_triangle_area (triangle * triangle){\ndouble semiperimeter = get_triangle_perimeter(triangle) / 2;\nreturn (int) (sqrt(semiperimeter * (semiperimeter - triangle->side1) * (semiperimeter - triangle->side2) * (semiperimeter - triangle->side3))); \n}\n"
-        );
+    printf("//Area functions\nint get_area(figure * figure){\n\
+        switch(figure->type){\n\
+            case CIRCLE_TYPE:\n\
+            return get_circle_area((circle *)figure);\n\
+            case RECTANGLE_TYPE:\n\
+            return get_rectangle_area((rectangle*)figure);\n\
+            case TRIANGLE_TYPE:\n\
+            return get_triangle_area((triangle*)figure);\n}\
+        return -1;\n}\n\
+        \
+        int get_circle_area (circle * circle){\n\
+        return (int) (pow(circle->radius, 2) * M_PI);\n}\
+        \
+        int get_rectangle_area (rectangle * rectangle){\n\
+        return rectangle->base * rectangle->height;\n}\n\
+        \
+        //Using Heron formula\n\
+        int get_triangle_area (triangle * triangle){\n\
+        double semiperimeter = get_triangle_perimeter(triangle) / 2;\n\
+        return (int) (sqrt(semiperimeter * (semiperimeter - triangle->side1) * (semiperimeter - triangle->side2) * (semiperimeter - triangle->side3))); \n}\n");
 
-    printf("//Figure equals functions\nint are_the_same_figure(struct figure * f1, struct figure * f2){\nif (f1->type != f2->type) return 0;\nfigure_type figs_type = f1->type;\
-        switch (figs_type) {\ncase CIRCLE_TYPE:\nreturn are_the_same_circle((struct circle *) f1, (struct circle *) f2);case TRIANGLE_TYPE:\nreturn are_the_same_triangle((struct triangle *) f1, (struct triangle *) f2);\
-        case RECTANGLE_TYPE:\nreturn are_the_same_rectangle((struct rectangle *) f1, (struct rectangle *) f2);}return 0;}\nint are_the_same_circle(struct circle * c1, struct circle * c2){\nreturn c1->radius == c2->radius;}\
-        \nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2){return r1->base == r2->base && r1->height == r2->height;}\n\
-        int are_the_same_triangle(struct triangle * t1, struct triangle * t2){return t1->side1 == t2->side1 && t1->side2 == t2->side2 && t1->side3 == t2->side3;}");
+    printf("//Figure equals functions\n\
+        int are_the_same_figure(struct figure * f1, struct figure * f2){\n\
+        if (f1->type != f2->type) return 0;\n\
+        figure_type figs_type = f1->type;\n\
+        switch (figs_type) {\n\
+            case CIRCLE_TYPE:\nreturn are_the_same_circle((struct circle *) f1, (struct circle *) f2);\n\
+            case TRIANGLE_TYPE:\nreturn are_the_same_triangle((struct triangle *) f1, (struct triangle *) f2);\n\
+            case RECTANGLE_TYPE:\nreturn are_the_same_rectangle((struct rectangle *) f1, (struct rectangle *) f2);\n\
+            }return 0;}\n\
+        \
+        int are_the_same_circle(struct circle * c1, struct circle * c2){\n\
+        return c1->radius == c2->radius;\
+        }\n\
+        \
+        \nint are_the_same_rectangle(struct rectangle * r1, struct rectangle * r2){\n\
+            return r1->base == r2->base && r1->height == r2->height;\
+        }\n\
+        \
+        int are_the_same_triangle(struct triangle * t1, struct triangle * t2){\n\
+            return t1->side1 == t2->side1 && t1->side2 == t2->side2 && t1->side3 == t2->side3;\n\
+        }\n\n");
 }
 
 

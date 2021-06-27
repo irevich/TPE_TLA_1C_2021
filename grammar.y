@@ -687,13 +687,14 @@ int main(int argc, char * argv[]){
     printf("#include <stdlib.h>\n");
     printf("#include <string.h>\n");
     print_initial_functions();
-    printf("int main(int argc, char * argv[]) { \n");
+    printf("\n\n\nint main(int argc, char * argv[]) { \n");
     
     char * program = translate_to_c(program_list);
     
     printf("%s\n", program);
+    printf("\nfree_alloqued_pointers();");
     printf("return 0;\n");
-    printf("}\n");
+    printf("}\n\n");
     
     pop_scope();
     free_functions_definitions();
