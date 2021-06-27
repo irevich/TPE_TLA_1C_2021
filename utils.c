@@ -33,7 +33,7 @@ bool is_type_figure(int type){
     return false;
 }
 
-//on this instance, all properties are INT_TYPE, but this could change as new properties are created
+//On this instance, all properties are INT_TYPE, but this could change as new properties are created
 data_type get_property_return_type(figure_property_type type){
     data_type ret;
     switch(type){

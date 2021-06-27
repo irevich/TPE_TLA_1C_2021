@@ -1,7 +1,7 @@
 #ifndef _NODE_DEFINITIONS_H_
 #define _NODE_DEFINITIONS_H_
 
-
+//Enum stored on the general node in order to check which type it is
 typedef enum{
     VARIABLE,
     CONSTANT_INT,
@@ -123,7 +123,8 @@ typedef struct exp_node{
     node * right_node;
 }exp_node;
 
-typedef struct parentheses_exp_node{  //wrapper node for expressions (literals, variables ,aritmethic or boolean expressions) sorrounded in parentheses
+//Wrapper node for expressions (literals, variables ,aritmethic or boolean expressions) surrounded in parentheses
+typedef struct parentheses_exp_node{  
     node_type type;
     node * exp_node;
 }parentheses_exp_node;

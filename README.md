@@ -41,3 +41,30 @@ Y alli ejecutar la instruccion :
 
 ./test_ejecutable
 
+DESCRIPCION DE LOS TESTS
+
+test1.geome : 
+    - Crea un triangulo, un rectangulo y un circulo, y se imprimen sus propiedades
+    - Verifica con un bloque condicional si alguno de los lados del triangulo es mayor o igual que el radio del circulo y que la base del rectangulo sea menor que la altura del mismo
+    - Con un bloque de "repeat while" se incrementa el radio en 10
+
+test2.geome : 
+    - Crea un triangulo, un rectangulo y un circulo, y se imprimen sus propiedades
+    - Imprime los perimetros y areas de cada uno
+
+test3.geome : 
+    - Crea 2 triangulos no iguales, 2 rectangulos iguales y 2 circulos no iguales, y se imprimen sus propiedades
+    - Se compara cada dupla de figuras entre si
+    - Se igualan los circulos y se cambian las propiedades de los triangulos para que queden iguales
+    - Se vuelven a comparar los circulos y los triangulos, y esta vez se indica que son iguales
+
+test4.geome :
+
+    - Se calcula el factorial de la variable int "num" en caso de ser un valor mayor o igual a 0. Caso contrario se indica que no es posible el calculo
+
+test5.geome :
+
+    - Se pide el ingreso por entrada estandar de un numero para que sea el radio de un circulo. Si el numero es negativo corta el test, sino se realiza el mismo proceso para la base y la altura de un rectangulo.
+    - Con los datos correctos, se crean el circulo y el rectangulo correspondientes, y se imprimen sus propiedades.
+    - Mediante bloques condicionales anidados, se checkea si el perimetro de alguna de las figuras es mayor o igual al promedio de los perimetros. De ser asi, se imprime que figura fue con el perimetro correspondiente y el promedio, y sino se imprime que ninguna de las figuras cumple dicha condicion y se imprime el promedio correspondiente.
+

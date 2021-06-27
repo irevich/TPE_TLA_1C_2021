@@ -15,7 +15,6 @@ void free_variable_node(variable_node * node){
 }
 
 constant_int_node * create_constant_int_node( int value){
-    //printf("Creando el node constant\n");
     constant_int_node * new_node = malloc(sizeof(constant_int_node));
     new_node->type = CONSTANT_INT;
     new_node->value = value;
@@ -86,8 +85,6 @@ property_node * create_property_node(node * var_node, figure_property_type prope
     
     property_node * new_node = malloc(sizeof(property_node));
     new_node->type = PROPERTY_NODE;
-    //new_node->var_name = malloc(strlen(var_name) + 1);
-    //strcpy(new_node->var_name,var_name);
     new_node->var_node = var_node;
     new_node->property_type = property_type;
     new_node->return_type = get_property_return_type(property_type);
@@ -155,7 +152,6 @@ void free_exp_node(exp_node * node){
 }
 
 print_node * create_print_node(node * content_node){
-    //printf("Creando el node print\n");
     print_node * new_node = malloc(sizeof(print_node));
     new_node->type = PRINT_NODE;
     new_node->content_node = content_node;
@@ -180,7 +176,6 @@ void free_read_num_node(read_num_node * node){
 }
 
 node_list * create_node_list(node * node, node_type type){
-    //printf("Creando node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->next = NULL;
     new_node->node = node;
@@ -189,7 +184,6 @@ node_list * create_node_list(node * node, node_type type){
 }
 
 node_list * add_node_list(node * node_header, node * node, node_type type){
-    //printf("Haciendo add_node_list\n");
     node_list * new_node = malloc(sizeof(node_list));
     new_node->node = node;
     new_node->type = type;
@@ -205,7 +199,6 @@ void free_node_list(node_list * node_to_free){
 }
 
 rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node){
-    //printf("Creando el node relational comp\n");
     data_type type_left = get_node_data_type(left_node);
     data_type type_right = get_node_data_type(right_node);
 
@@ -230,7 +223,6 @@ void free_relational_comp_node(rel_comp_node * node){
 }
 
 log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node){
-    //printf("Creando el node logical comp\n");
     log_comp_node * new_node = malloc(sizeof(log_comp_node));
     new_node->type = LOG_COMP;
     new_node->op = malloc(strlen(op) + 1);
@@ -248,7 +240,6 @@ void free_logical_comp_node(log_comp_node * node){
 }
 
 if_node * create_if_node(node * cond, node * code){
-    //printf("Creando el node if\n");
     if_node * new_node = malloc(sizeof(if_node));
     new_node->type = IF_NODE;
     new_node->cond = cond;
@@ -263,7 +254,6 @@ void free_if_node(if_node * node){
 }
 
 while_node * create_while_node(node * cond, node * code){
-    //printf("Creando el node if\n");
     while_node * new_node = malloc(sizeof(while_node));
     new_node->type = WHILE_NODE;
     new_node->cond = cond;

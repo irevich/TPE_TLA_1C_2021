@@ -211,7 +211,6 @@ char * translate_assignation_node(assignation_node * assign_node){
 char * translate_constant_int_node (constant_int_node * node){
     int cant_digits = get_cant_digits(node->value);
     char * string_num = malloc(cant_digits+1);
-    //printf("Node value : %d\n",node->value);
     sprintf(string_num,"%d",node->value);
     return string_num;
 }

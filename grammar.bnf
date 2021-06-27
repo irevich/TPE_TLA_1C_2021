@@ -1,0 +1,81 @@
+
+<program>::= "start" code "end"
+
+<code>::= <instruction> <code> | <instruction>
+
+<instruction>::= <declaration> ";"
+                | <assignation> ";"
+                | <if_block>
+                | <while_block>
+                | "print" "(" <param> ")" ";"
+                | "read_num" "(" <variable> ")" ";"
+
+<if_block>::== "if" "("  <comp> ")" "{" <code> "}" <otherwise_block>
+
+<otherwise_block>::== "otherwise" "{" <code> "}"
+                 | %empty
+
+<while_block>::== "repeat while" "(" <comp> ")" "{" <code> "}"
+
+<comp>::== <comp> "or" <comp_term>
+        | <comp_term>
+
+<comp_term>::== <comp_term> "and" <comp_factor>
+            | <comp_factor>
+
+<comp_factor>::== <exp> <or> <exp>
+             | "(" <comp> ")"
+
+<or>    ::= "<" 
+        | "<="
+        | ">"
+        | ">="
+        | "eq"
+        | "not_eq"
+
+<declaration>::== <var_type> [a-zA-Z]([a-zA-Z]|[0-9]+|[_])* "=" <param>
+
+<var_type>    ::= "int"
+                | "string"
+                | "circle"
+                | "rectangle"
+                | "triangle"
+
+<assignation>  ::=    variable "=" <param>
+                | <figure_property> "=" <param>
+
+<param> ::=   <exp>
+        | \"[^\"]*\"
+
+<exp>   ::= <exp> "+" <term>
+        |  <exp> "-" <term>
+        |  <term>
+
+
+<term>  ::= <term> "*" <factor>
+        | <term> "/" <factor>
+        | <factor>
+
+<factor> ::= <variable>
+        |  [0-9]+
+        | "-" [0-9]+
+        | <figure_property>
+        | <func>
+        | "(" <exp> ")"
+
+<func> ::= "create_circle" "(" <param> ")"
+        | "create_rectangle" "(" <param> "," <param> ")"
+        | "create_triangle" "(" <param> "," <param> ")"
+        | "get_perimeter" "(" <factor> ")"
+        | "get_area" "(" <factor> ")"
+
+<figure_property> ::= variable "->" <property>
+
+<property> ::= "radius" 
+            | "side_1" 
+            | "side_2" 
+            | "side_3" 
+            | "base" 
+            | "height"
+
+<variable> ::= [a-zA-Z]([a-zA-Z]|[0-9]+|[_])*

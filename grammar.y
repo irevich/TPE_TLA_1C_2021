@@ -13,20 +13,24 @@
 
     int extern yylineno;
 
+    //Prints error message and line where error was found
     void yyerror(node_list ** node_list_param, char const * s);
 
+    //To store user defined variables
     typedef struct variable_list_node{
         data_type type;
         char * name;
         struct variable_list_node * next; 
     }variable_list_node;
 
+    //To check scope when declaring and using variables
     typedef struct scope_list_node{
         struct variable_list_node * variables_list;
         struct scope_list_node * next;
         struct scope_list_node * prev;
     }scope_list_node;
 
+    //To store defined functions
     typedef struct function_defintion{
         char * name;
         int total_params;
@@ -388,6 +392,7 @@
 
     factor      :   variable      {$$ = $1;}
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
+                |   MINUS NUM       {$$ = (node*)create_constant_int_node($2 * (-1));}
                 |   figure_property {$$ =  $1;}
                 |   func            {$$ = $1;}
                 | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { $$ = (node *) create_parentheses_exp_node($2);}

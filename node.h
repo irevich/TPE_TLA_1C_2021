@@ -6,6 +6,7 @@
 #include <string.h>
 #include "utils.h"
 
+//Functions to create nodes and to free the memory space after it's use
 variable_node * create_variable_node(data_type variable_type, char * name);
 void free_variable_node(variable_node * node);
 constant_int_node * create_constant_int_node( int value);
@@ -24,7 +25,6 @@ node_list * add_node_list(node * node_header, node * node, node_type type);
 node_list * create_node_list(node * node, node_type type);
 void free_node_list(node_list * node);
 void free_node(node * node);
-
 rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node);
 void free_relational_comp_node(rel_comp_node * node);
 log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node);
@@ -35,16 +35,12 @@ if_otherwise_node * create_if_otherwise_node(node * cond, node * left, node * ri
 void free_if_otherwise_node(if_otherwise_node * node);
 while_node * create_while_node(node * cond, node * code);
 void free_while_node(while_node * node);
-
 property_node * create_property_node(node * var_node, figure_property_type property_type);
 void free_property_node(property_node * node);
-
 function_node * create_function_node(data_type return_type, char * name, node * node_param_header);
 void free_function_node(function_node * node);
-
 parentheses_exp_node * create_parentheses_exp_node(node * exp_node);
 void free_parentheses_exp_node(parentheses_exp_node * node);
-
 read_num_node * create_read_num_node(node * content_node);
 void free_read_num_node(read_num_node * node);
 

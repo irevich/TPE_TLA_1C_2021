@@ -66,10 +66,10 @@ string \"[^\"]*\"
 \"                              return QM;
 {letter}({letter}|{digit}|[_])* {strcpy(yylval.string, yytext); return IDENTIFIER;}
 {string}                       {strcpy(yylval.string, yytext); return TEXT;}
-(-)?{digit}+                    {yylval.num = atoi(yytext); return NUM;}
+{digit}+                       {yylval.num = atoi(yytext); return NUM;}
 
 \n              {yylineno++;}
-[ \t\r]+		;		//Ignore white space
+[ \t\r]+		;		                //Ignore white space, syntax error for any other word we don't support
 .               return SYNTAX_ERROR;
 %%
 
