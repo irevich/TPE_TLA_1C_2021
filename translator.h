@@ -42,6 +42,8 @@ char * translate_property_node (property_node * node);
 
 char * translate_function_node (function_node * node);
 
+char * translate_parentheses_exp_node(parentheses_exp_node * node);
+
 void print_initial_functions();
 
 #endif

@@ -6,6 +6,9 @@
 
 %}
 
+%option nounput
+%option noinput
+
  //Definitions Section
 
 letter [a-zA-Z]

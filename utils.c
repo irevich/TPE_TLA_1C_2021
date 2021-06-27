@@ -14,6 +14,8 @@ int get_node_data_type(node * node_param){
             return ((property_node *)(node_param))->return_type;
         case FUNCTION_NODE:
             return ((function_node *)(node_param))->return_type;
+        case PARENTHESES_EXP_NODE:
+            return get_node_data_type(((parentheses_exp_node *)(node_param))->exp_node);
         default:    
             return -1;
     }

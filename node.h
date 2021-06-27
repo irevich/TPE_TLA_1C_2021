@@ -16,7 +16,7 @@ declaration_node * create_declaration_node(char * name, data_type type, node * a
 void free_declaration_node(declaration_node * node);
 assignation_node * create_assignation_node(node * var_node, node * assigned_node);
 void free_assignation_node(assignation_node * node);
-exp_node * create_exp_node(char * op, node * left_node, node * right_node,int has_parentheses);
+exp_node * create_exp_node(char * op, node * left_node, node * right_node);
 void free_exp_node(exp_node * node);
 print_node * create_print_node(node * content_node);
 void free_print_node(print_node * node);
@@ -27,7 +27,7 @@ void free_node(node * node);
 
 rel_comp_node * create_relational_comp_node(char * op, node * left_node, node * right_node);
 void free_relational_comp_node(rel_comp_node * node);
-log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node,int has_parentheses);
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node);
 void free_logical_comp_node(log_comp_node * node);
 if_node * create_if_node(node * cond, node * code);
 void free_if_node(if_node * node);
@@ -41,5 +41,8 @@ void free_property_node(property_node * node);
 
 function_node * create_function_node(data_type return_type, char * name, node * node_param_header);
 void free_function_node(function_node * node);
+
+parentheses_exp_node * create_parentheses_exp_node(node * exp_node);
+void free_parentheses_exp_node(parentheses_exp_node * node);
 
 #endif

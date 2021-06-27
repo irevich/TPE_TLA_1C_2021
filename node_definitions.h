@@ -9,6 +9,7 @@ typedef enum{
     DECLARATION,
     ASSIGNATION,
     EXP,
+    PARENTHESES_EXP_NODE,
     PRINT_NODE,
     PROPERTY_NODE,
     NODE_LIST,
@@ -117,10 +118,14 @@ typedef struct assignation_node{
 typedef struct exp_node{ 
     node_type type;
     char * op;
-    int has_parentheses;
     node * left_node;
     node * right_node;
 }exp_node;
+
+typedef struct parentheses_exp_node{  //wrapper node for expressions (literals, variables ,aritmethic or boolean expressions) sorrounded in parentheses
+    node_type type;
+    node * exp_node;
+}parentheses_exp_node;
 
 typedef struct print_node{ 
     node_type type;
@@ -137,7 +142,6 @@ typedef struct rel_comp_node{
 typedef struct log_comp_node{
     node_type type;
     char * op;
-    int has_parentheses;
     node * left_node;
     node * right_node; 
 }log_comp_node;

@@ -250,11 +250,11 @@
                                                                                                                              pop_scope();
                                                                                                                         }
 
-    comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3,0);  }
+    comp        :   comp OR comp_term       {   $$ = (node*) create_logical_comp_node("||",$1, $3);  }
                 |   comp_term               {   $$ = $1;    }
                 ;
 
-    comp_term   :   comp_term AND comp_factor    {   $$ = (node*) create_logical_comp_node("&&",$1, $3,0);  }
+    comp_term   :   comp_term AND comp_factor    {   $$ = (node*) create_logical_comp_node("&&",$1, $3);  }
                 |   comp_factor                  {   $$ = $1;   }
                 ;
 
@@ -270,15 +270,7 @@
 
                                             }
                 | OPEN_PARENTHESES comp CLOSE_PARENTHESES    { 
-                    if (((node *) $2)->type != LOG_COMP) {
-                        char * error_message = malloc(strlen("Error. Invalid logical expression") + 1);
-                        sprintf(error_message, "Error. Invalid logical expression");
-                        yyerror(NULL, error_message);
-                    }
-                    log_comp_node *node_comp = (log_comp_node *) $2;
-                    $$ = (node *) create_logical_comp_node(node_comp->op,node_comp->left_node,node_comp->right_node,1); 
-                    free(node_comp->op);
-                    free(node_comp);
+                    $$ = (node *) create_parentheses_exp_node($2);
                     }
                 ; 
     
@@ -348,7 +340,7 @@
                                                 sprintf(error_message, "Error. Invalid aritmethic expression");
                                                 yyerror(NULL, error_message);
                                             }
-                                            $$ = (node*) create_exp_node("+",$1,$3,0);  
+                                            $$ = (node*) create_exp_node("+",$1,$3);  
                                         }
                 |   exp MINUS term      {   
                                             node * term_node = (node *) $3;
@@ -358,7 +350,7 @@
                                                 sprintf(error_message, "Error. Invalid aritmethic expression");
                                                 yyerror(NULL, error_message);
                                             }
-                                            $$ = (node*) create_exp_node("-",$1,$3,0);  
+                                            $$ = (node*) create_exp_node("-",$1,$3);  
                                         }
                 |   term                {$$ = $1;}
                 ;
@@ -370,7 +362,7 @@
                                                     sprintf(error_message, "Error. Invalid aritmethic expression");
                                                     yyerror(NULL, error_message);
                                                 }
-                                                $$ = (node*) create_exp_node("*",$1,$3,0);  
+                                                $$ = (node*) create_exp_node("*",$1,$3);  
                                             }
                 |   term DIVISION factor    {   
                                                 node * factor_node = (node *) $3;
@@ -380,7 +372,7 @@
                                                     sprintf(error_message, "Error. Invalid aritmethic expression");
                                                     yyerror(NULL, error_message);
                                                 }
-                                                $$ = (node*) create_exp_node("/",$1,$3,0);  
+                                                $$ = (node*) create_exp_node("/",$1,$3);  
                                             }
                 |   factor                  { $$ = $1; }
                 ;
@@ -389,16 +381,8 @@
                 |   NUM             {$$ = (node*)create_constant_int_node($1);}
                 |   figure_property {$$ =  $1;}
                 |   func            {$$ = $1;}
-                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { if (((node *) $2)->type != EXP) {
-                                                                    char * error_message = malloc(strlen("Error. Invalid aritmethical expression") + 1);
-                                                                    sprintf(error_message, "Error. Invalid aritmethical expression");
-                                                                    yyerror(NULL, error_message);
-                                                                }
-                                                                exp_node *node_exp = (exp_node *) $2;
-                                                              $$ = (node *) create_exp_node(node_exp->op,node_exp->left_node,node_exp->right_node,1); 
-                                                              free(node_exp->op);
-                                                              free(node_exp);
-                                                              }
+                | OPEN_PARENTHESES exp CLOSE_PARENTHESES    { $$ = (node *) create_parentheses_exp_node($2);
+                                                            }
                 ;
 
     func    :   CREATE_C OPEN_PARENTHESES param CLOSE_PARENTHESES                           {   

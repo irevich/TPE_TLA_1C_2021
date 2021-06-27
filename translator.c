@@ -118,6 +118,10 @@ char * translate_node(node * node_to_translate){
             result = translate_exp_node((exp_node *)node_to_translate);
             break;
 
+        case PARENTHESES_EXP_NODE:
+            result = translate_parentheses_exp_node((parentheses_exp_node *) node_to_translate);
+            break;
+
         case FUNCTION_NODE:
             result = translate_function_node((function_node *) node_to_translate);
             break;
@@ -219,18 +223,26 @@ char * translate_constant_string_node(constant_string_node * node){
 char * translate_exp_node ( exp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
-    char * exp;
-    if (node->has_parentheses) {
-        exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+6);
-        sprintf(exp,"(%s %s %s)",translated_left_node,node->op, translated_right_node);
-    }
-    else {
-        exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
-        sprintf(exp,"%s %s %s",translated_left_node,node->op, translated_right_node);
-    }
+    
+    char * exp = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
+    sprintf(exp,"%s %s %s",translated_left_node,node->op, translated_right_node);
+
     free(translated_left_node);
     free(translated_right_node);
     return exp;
+}
+
+char * translate_parentheses_exp_node(parentheses_exp_node * node){
+    
+    char * translated_exp_node = translate_node(node->exp_node);
+
+    char * translated_node = malloc(strlen(translated_exp_node) + strlen("(") + strlen(")") + 1);
+    sprintf(translated_node, "(%s)", translated_exp_node);
+
+    free(translated_exp_node);
+
+    return translated_node;
+
 }
 
 char * translate_function_node(function_node * node){
@@ -318,16 +330,10 @@ char * translate_rel_comp_node (rel_comp_node * node){
 char * translate_log_comp_node (log_comp_node * node){
     char * translated_left_node = translate_node(node->left_node);
     char * translated_right_node = translate_node(node->right_node);
-    char * comp_string;
-    if (node->has_parentheses) {
-        comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+6);
-        sprintf(comp_string,"(%s %s %s)",translated_left_node,node->op, translated_right_node);
-    }
-    else {
-        comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
-        sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
+    
+    char * comp_string = malloc(strlen(translated_left_node)+strlen(node->op)+strlen(translated_right_node)+4);
+    sprintf(comp_string,"%s %s %s",translated_left_node,node->op, translated_right_node);
 
-    }
     free(translated_left_node);
     free(translated_right_node);
     return comp_string;

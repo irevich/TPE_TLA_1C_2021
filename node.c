@@ -43,7 +43,7 @@ void free_constant_int_node (constant_int_node * node){
 
 
 declaration_node * create_declaration_node(char * name, data_type type, node * assigned_node){
-    //printf("Creando el node declaration\n");
+
     if(type != get_node_data_type(assigned_node)){
         return NULL;
     }
@@ -118,15 +118,33 @@ void free_function_node(function_node * node){
     free(node);
 }
 
-exp_node * create_exp_node(char * op, node * left_node, node * right_node, int has_parentheses){
+exp_node * create_exp_node(char * op, node * left_node, node * right_node){
     exp_node * new_node = malloc(sizeof(exp_node));
+    
     new_node->type = EXP;
     new_node->op = malloc(strlen(op) + 1);
+    
     strcpy(new_node->op, op);
+    
     new_node->left_node = left_node;
     new_node->right_node = right_node;
-    new_node->has_parentheses = has_parentheses;
+    
     return new_node;
+}
+
+parentheses_exp_node * create_parentheses_exp_node(node * exp_node){
+    
+    parentheses_exp_node * new_node = malloc(sizeof(parentheses_exp_node));
+    
+    new_node->type = PARENTHESES_EXP_NODE;
+    new_node->exp_node = exp_node;
+
+    return new_node;
+}
+
+void free_parentheses_exp_node(parentheses_exp_node * node){
+    free_node(node->exp_node);
+    free(node);
 }
 
 void free_exp_node(exp_node * node){
@@ -199,7 +217,7 @@ void free_relational_comp_node(rel_comp_node * node){
 
 }
 
-log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node,int has_parentheses){
+log_comp_node * create_logical_comp_node(char * op, node * left_node, node * right_node){
     //printf("Creando el node logical comp\n");
     log_comp_node * new_node = malloc(sizeof(log_comp_node));
     new_node->type = LOG_COMP;
@@ -207,7 +225,6 @@ log_comp_node * create_logical_comp_node(char * op, node * left_node, node * rig
     strcpy(new_node->op, op);
     new_node->left_node = left_node;
     new_node->right_node = right_node;
-    new_node->has_parentheses = has_parentheses;
     return new_node;
 }
 
@@ -288,6 +305,10 @@ void free_node(node * node){
 
         case EXP:
             free_exp_node((exp_node *)node);
+            break;
+
+        case PARENTHESES_EXP_NODE:
+            free_parentheses_exp_node((parentheses_exp_node *) node);
             break;
 
         case PARAM_NODE_LIST:
